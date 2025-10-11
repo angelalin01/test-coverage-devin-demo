@@ -6,37 +6,80 @@ configfile: pyproject.toml
 testpaths: tests
 plugins: asyncio-0.21.2, cov-4.1.0, anyio-3.7.1
 asyncio: mode=Mode.AUTO
-collecting ... collected 15 items
+collecting ... collected 58 items
 
-tests/ingestion/test_packet.py::TestTelemetryPacket::test_create_valid_packet PASSED [  6%]
-tests/ingestion/test_packet.py::TestTelemetryPacket::test_invalid_milestone_raises_error PASSED [ 13%]
+tests/api/test_server.py::TestStatusAPI::test_initialization PASSED      [  1%]
+tests/api/test_server.py::TestStatusAPI::test_submit_packet_success PASSED [  3%]
+tests/api/test_server.py::TestStatusAPI::test_submit_packet_invalid_data PASSED [  5%]
+tests/api/test_server.py::TestStatusAPI::test_get_milestone_status PASSED [  6%]
+tests/api/test_server.py::TestStatusAPI::test_get_milestone_not_found PASSED [  8%]
+tests/api/test_server.py::TestStatusAPI::test_get_all_statuses PASSED    [ 10%]
+tests/api/test_server.py::TestStatusAPI::test_get_readiness PASSED       [ 12%]
+tests/api/test_server.py::TestStatusAPI::test_get_receiver_stats PASSED  [ 13%]
+tests/api/test_server.py::TestStatusAPI::test_callback_integration PASSED [ 15%]
+tests/ingestion/test_packet.py::TestTelemetryPacket::test_create_valid_packet PASSED [ 17%]
+tests/ingestion/test_packet.py::TestTelemetryPacket::test_invalid_milestone_raises_error PASSED [ 18%]
 tests/ingestion/test_packet.py::TestTelemetryPacket::test_get_metric_value PASSED [ 20%]
-tests/ingestion/test_packet.py::TestPacketValidator::test_validate_valid_packet PASSED [ 26%]
-tests/ingestion/test_packet.py::TestPacketValidator::test_validate_packet_without_data PASSED [ 33%]
-tests/ingestion/test_receiver.py::TestTelemetryReceiver::test_receive_valid_packet PASSED [ 40%]
-tests/ingestion/test_receiver.py::TestTelemetryReceiver::test_receive_invalid_packet PASSED [ 46%]
-tests/ingestion/test_receiver.py::TestTelemetryReceiver::test_get_stats PASSED [ 53%]
-tests/processors/test_milestone_processor.py::TestMilestoneProcessor::test_initialization PASSED [ 60%]
-tests/processors/test_milestone_processor.py::TestMilestoneProcessor::test_process_packet_updates_state PASSED [ 66%]
-tests/processors/test_milestone_processor.py::TestMilestoneProcessor::test_process_complete_milestone PASSED [ 73%]
-tests/processors/test_milestone_processor.py::TestMilestoneProcessor::test_process_packet_with_progress PASSED [ 80%]
-tests/processors/test_milestone_processor.py::TestMilestoneProcessor::test_is_milestone_complete PASSED [ 86%]
-tests/status/test_readiness.py::TestReadinessComputer::test_initialization PASSED [ 93%]
+tests/ingestion/test_packet.py::TestPacketValidator::test_validate_valid_packet PASSED [ 22%]
+tests/ingestion/test_packet.py::TestPacketValidator::test_validate_packet_without_data PASSED [ 24%]
+tests/ingestion/test_receiver.py::TestTelemetryReceiver::test_receive_valid_packet PASSED [ 25%]
+tests/ingestion/test_receiver.py::TestTelemetryReceiver::test_receive_invalid_packet PASSED [ 27%]
+tests/ingestion/test_receiver.py::TestTelemetryReceiver::test_get_stats PASSED [ 29%]
+tests/processors/test_milestone_processor.py::TestMilestoneProcessor::test_initialization PASSED [ 31%]
+tests/processors/test_milestone_processor.py::TestMilestoneProcessor::test_process_packet_updates_state PASSED [ 32%]
+tests/processors/test_milestone_processor.py::TestMilestoneProcessor::test_process_complete_milestone PASSED [ 34%]
+tests/processors/test_milestone_processor.py::TestMilestoneProcessor::test_process_packet_with_progress PASSED [ 36%]
+tests/processors/test_milestone_processor.py::TestMilestoneProcessor::test_is_milestone_complete PASSED [ 37%]
+tests/processors/test_state_machine.py::TestStateMachine::test_initialization PASSED [ 39%]
+tests/processors/test_state_machine.py::TestStateMachine::test_add_transition PASSED [ 41%]
+tests/processors/test_state_machine.py::TestStateMachine::test_add_multiple_transitions_from_same_state PASSED [ 43%]
+tests/processors/test_state_machine.py::TestStateMachine::test_add_duplicate_transition PASSED [ 44%]
+tests/processors/test_state_machine.py::TestStateMachine::test_can_transition_valid PASSED [ 46%]
+tests/processors/test_state_machine.py::TestStateMachine::test_can_transition_invalid PASSED [ 48%]
+tests/processors/test_state_machine.py::TestStateMachine::test_can_transition_no_transitions_defined PASSED [ 50%]
+tests/processors/test_state_machine.py::TestStateMachine::test_transition_success PASSED [ 51%]
+tests/processors/test_state_machine.py::TestStateMachine::test_transition_failure PASSED [ 53%]
+tests/processors/test_state_machine.py::TestStateMachine::test_transition_with_condition PASSED [ 55%]
+tests/processors/test_state_machine.py::TestStateMachine::test_transition_history_tracking PASSED [ 56%]
+tests/processors/test_state_machine.py::TestStateMachine::test_register_callback PASSED [ 58%]
+tests/processors/test_state_machine.py::TestStateMachine::test_multiple_callbacks_same_state PASSED [ 60%]
+tests/processors/test_state_machine.py::TestStateMachine::test_callback_not_executed_on_failed_transition PASSED [ 62%]
+tests/processors/test_state_machine.py::TestStateMachine::test_get_history PASSED [ 63%]
+tests/processors/test_state_machine.py::TestStateMachine::test_reset PASSED [ 65%]
+tests/processors/test_state_machine.py::TestStateMachine::test_complex_transition_chain PASSED [ 67%]
+tests/processors/test_state_machine.py::TestStateTransition::test_state_transition_creation PASSED [ 68%]
+tests/processors/test_state_machine.py::TestStateTransition::test_state_transition_optional_fields PASSED [ 70%]
+tests/status/test_aggregator.py::TestStatusAggregator::test_initialization PASSED [ 72%]
+tests/status/test_aggregator.py::TestStatusAggregator::test_capture_snapshot PASSED [ 74%]
+tests/status/test_aggregator.py::TestStatusAggregator::test_capture_multiple_snapshots PASSED [ 75%]
+tests/status/test_aggregator.py::TestStatusAggregator::test_get_milestone_history PASSED [ 77%]
+tests/status/test_aggregator.py::TestStatusAggregator::test_get_milestone_history_not_in_snapshot PASSED [ 79%]
+tests/status/test_aggregator.py::TestStatusAggregator::test_get_average_progress PASSED [ 81%]
+tests/status/test_aggregator.py::TestStatusAggregator::test_get_average_progress_no_history PASSED [ 82%]
+tests/status/test_aggregator.py::TestStatusAggregator::test_get_status_at_time PASSED [ 84%]
+tests/status/test_aggregator.py::TestStatusAggregator::test_get_status_at_time_no_snapshots PASSED [ 86%]
+tests/status/test_aggregator.py::TestStatusAggregator::test_get_completion_timeline PASSED [ 87%]
+tests/status/test_aggregator.py::TestStatusAggregator::test_get_completion_timeline_no_completions PASSED [ 89%]
+tests/status/test_aggregator.py::TestStatusAggregator::test_get_completion_timeline_partial PASSED [ 91%]
+tests/status/test_aggregator.py::TestSnapshotRetention::test_cleanup_old_snapshots PASSED [ 93%]
+tests/status/test_aggregator.py::TestSnapshotRetention::test_retention_keeps_recent_snapshots PASSED [ 94%]
+tests/status/test_aggregator.py::TestSnapshotRetention::test_custom_retention_period PASSED [ 96%]
+tests/status/test_readiness.py::TestReadinessComputer::test_initialization PASSED [ 98%]
 tests/status/test_readiness.py::TestReadinessComputer::test_ready_state PASSED [100%]
 
 ---------- coverage: platform linux, python 3.12.8-final-0 -----------
 Name                                Stmts   Miss  Cover   Missing
 -----------------------------------------------------------------
-api/server.py                          63     63     0%   1-158
+api/server.py                          63     21    67%   120-158
 ingestion/packet.py                    48     16    67%   58, 76-86, 99-108
-ingestion/receiver.py                  51     21    59%   37, 43, 58-67, 79-81, 93-96, 100, 109
+ingestion/receiver.py                  51     19    63%   37, 58-67, 79-81, 93-96, 100
 processors/milestone_processor.py      63      9    86%   65, 78-80, 137-144, 153
-processors/state_machine.py            43     27    37%   20-24, 34-38, 50-53, 66-83, 93-96, 105, 109-110
-status/aggregator.py                   40     29    28%   13-15, 24-26, 30-34, 46-54, 66-70, 79-86, 98-102
+processors/state_machine.py            43      0   100%
+status/aggregator.py                   40      0   100%
 status/readiness.py                    75     21    72%   55, 84-87, 98, 113, 115, 117, 128-129, 138-149
 -----------------------------------------------------------------
-TOTAL                                 383    186    51%
+TOTAL                                 383     86    78%
 Coverage HTML written to dir htmlcov
 
 
-============================== 15 passed in 0.34s ==============================
+============================== 58 passed in 1.50s ==============================
