@@ -1,0 +1,42 @@
+============================= test session starts ==============================
+platform linux -- Python 3.12.8, pytest-7.4.4, pluggy-1.6.0 -- /home/ubuntu/.cache/pypoetry/virtualenvs/telemetry-status-service-1y822yDO-py3.12/bin/python
+cachedir: .pytest_cache
+rootdir: /home/ubuntu/repos/test-coverage-devin-demo
+configfile: pyproject.toml
+testpaths: tests
+plugins: asyncio-0.21.2, cov-4.1.0, anyio-3.7.1
+asyncio: mode=Mode.AUTO
+collecting ... collected 15 items
+
+tests/ingestion/test_packet.py::TestTelemetryPacket::test_create_valid_packet PASSED [  6%]
+tests/ingestion/test_packet.py::TestTelemetryPacket::test_invalid_milestone_raises_error PASSED [ 13%]
+tests/ingestion/test_packet.py::TestTelemetryPacket::test_get_metric_value PASSED [ 20%]
+tests/ingestion/test_packet.py::TestPacketValidator::test_validate_valid_packet PASSED [ 26%]
+tests/ingestion/test_packet.py::TestPacketValidator::test_validate_packet_without_data PASSED [ 33%]
+tests/ingestion/test_receiver.py::TestTelemetryReceiver::test_receive_valid_packet PASSED [ 40%]
+tests/ingestion/test_receiver.py::TestTelemetryReceiver::test_receive_invalid_packet PASSED [ 46%]
+tests/ingestion/test_receiver.py::TestTelemetryReceiver::test_get_stats PASSED [ 53%]
+tests/processors/test_milestone_processor.py::TestMilestoneProcessor::test_initialization PASSED [ 60%]
+tests/processors/test_milestone_processor.py::TestMilestoneProcessor::test_process_packet_updates_state PASSED [ 66%]
+tests/processors/test_milestone_processor.py::TestMilestoneProcessor::test_process_complete_milestone PASSED [ 73%]
+tests/processors/test_milestone_processor.py::TestMilestoneProcessor::test_process_packet_with_progress PASSED [ 80%]
+tests/processors/test_milestone_processor.py::TestMilestoneProcessor::test_is_milestone_complete PASSED [ 86%]
+tests/status/test_readiness.py::TestReadinessComputer::test_initialization PASSED [ 93%]
+tests/status/test_readiness.py::TestReadinessComputer::test_ready_state PASSED [100%]
+
+---------- coverage: platform linux, python 3.12.8-final-0 -----------
+Name                                Stmts   Miss  Cover   Missing
+-----------------------------------------------------------------
+api/server.py                          63     63     0%   1-158
+ingestion/packet.py                    48     16    67%   58, 76-86, 99-108
+ingestion/receiver.py                  51     21    59%   37, 43, 58-67, 79-81, 93-96, 100, 109
+processors/milestone_processor.py      63      9    86%   65, 78-80, 137-144, 153
+processors/state_machine.py            43     27    37%   20-24, 34-38, 50-53, 66-83, 93-96, 105, 109-110
+status/aggregator.py                   40     29    28%   13-15, 24-26, 30-34, 46-54, 66-70, 79-86, 98-102
+status/readiness.py                    75     21    72%   55, 84-87, 98, 113, 115, 117, 128-129, 138-149
+-----------------------------------------------------------------
+TOTAL                                 383    186    51%
+Coverage HTML written to dir htmlcov
+
+
+============================== 15 passed in 0.34s ==============================
