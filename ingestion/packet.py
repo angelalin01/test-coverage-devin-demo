@@ -60,11 +60,6 @@ class PacketValidator:
         if not packet.data:
             return False
         
-        # SEEDED BUG #4: Malformed data values are not validated
-        # Packet is marked valid even if data contains wrong types (e.g., string instead of float)
-        # Current tests don't verify type correctness of metric values
-        # Future test needed: test_validate_packet_with_type_mismatches()
-        
         return True
     
     @staticmethod
