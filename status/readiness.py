@@ -86,6 +86,11 @@ class ReadinessComputer:
                 return ReadinessLevel.SCRUBBED
             return ReadinessLevel.HOLD
         
+        # SEEDED BUG #6: No dependency check - milestone can be marked complete even if dependencies incomplete
+        # Example: liftoff could be COMPLETE even if engine_chill is still IN_PROGRESS
+        # Current tests don't verify milestone ordering or dependency constraints
+        # Future test needed: test_milestone_dependencies_enforced() and test_liftoff_requires_all_previous_complete()
+        
         critical_ready = all(
             m in ready for m in self.critical_milestones
             if m in all_statuses

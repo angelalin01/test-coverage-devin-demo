@@ -65,6 +65,12 @@ class MilestoneProcessor:
             return False
         
         status = self.milestone_states[packet.milestone]
+        
+        # SEEDED BUG #5: Duplicate packets overwrite state without checking packet_id
+        # No deduplication - same packet can be processed multiple times, corrupting metrics
+        # Current tests don't verify duplicate packet rejection
+        # Future test needed: test_process_duplicate_packet_rejected()
+        
         status.last_update = packet.timestamp
         
         if 'status' in packet.data:

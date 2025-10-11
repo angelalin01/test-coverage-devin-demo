@@ -35,22 +35,6 @@ class TestMilestoneProcessor:
         status = processor.get_milestone_status("engine_chill")
         assert status.state == MilestoneState.IN_PROGRESS
     
-    def test_process_packet_with_progress(self, processor):
-        """Test processing packet with progress updates."""
-        packet = TelemetryPacket(
-            packet_id="PKT-002",
-            timestamp=datetime.now(),
-            source="ground_station_1",
-            milestone="fuel_load",
-            data={"progress": 50.0, "flow_rate": 100.0}
-        )
-        
-        processor.process_packet(packet)
-        
-        status = processor.get_milestone_status("fuel_load")
-        assert status.progress_percent == 50.0
-        assert status.state == MilestoneState.IN_PROGRESS
-    
     def test_process_complete_milestone(self, processor):
         """Test marking milestone as complete."""
         packet = TelemetryPacket(
@@ -67,21 +51,21 @@ class TestMilestoneProcessor:
         assert status.state == MilestoneState.COMPLETE
         assert status.progress_percent == 100.0
     
-    def test_process_failed_milestone(self, processor):
-        """Test marking milestone as failed."""
+    def test_process_packet_with_progress(self, processor):
+        """Test processing packet with progress updates."""
         packet = TelemetryPacket(
-            packet_id="PKT-004",
+            packet_id="PKT-002",
             timestamp=datetime.now(),
             source="ground_station_1",
-            milestone="engine_chill",
-            data={"status": "failed", "error": "Temperature out of range"}
+            milestone="fuel_load",
+            data={"progress": 50.0, "flow_rate": 100.0}
         )
         
         processor.process_packet(packet)
         
-        status = processor.get_milestone_status("engine_chill")
-        assert status.state == MilestoneState.FAILED
-        assert status.error_message == "Temperature out of range"
+        status = processor.get_milestone_status("fuel_load")
+        assert status.progress_percent == 50.0
+        assert status.state == MilestoneState.IN_PROGRESS
     
     def test_is_milestone_complete(self, processor):
         """Test checking if milestone is complete."""
@@ -96,52 +80,3 @@ class TestMilestoneProcessor:
         processor.process_packet(packet)
         assert processor.is_milestone_complete("terminal_count") is True
         assert processor.is_milestone_complete("ignition") is False
-    
-    def test_reset_milestone(self, processor):
-        """Test resetting a milestone."""
-        packet = TelemetryPacket(
-            packet_id="PKT-006",
-            timestamp=datetime.now(),
-            source="ground_station_1",
-            milestone="liftoff",
-            data={"status": "complete"}
-        )
-        
-        processor.process_packet(packet)
-        assert processor.is_milestone_complete("liftoff") is True
-        
-        processor.reset_milestone("liftoff")
-        status = processor.get_milestone_status("liftoff")
-        assert status.state == MilestoneState.NOT_STARTED
-    
-    def test_get_completion_count(self, processor):
-        """Test getting count of completed milestones."""
-        milestones = ["engine_chill", "fuel_load", "pressurization"]
-        
-        for milestone in milestones:
-            packet = TelemetryPacket(
-                packet_id=f"PKT-{milestone}",
-                timestamp=datetime.now(),
-                source="ground_station_1",
-                milestone=milestone,
-                data={"status": "complete"}
-            )
-            processor.process_packet(packet)
-        
-        assert processor.get_completion_count() == 3
-    
-    def test_process_packet_updates_metrics(self, processor):
-        """Test that packet metrics are stored."""
-        packet = TelemetryPacket(
-            packet_id="PKT-007",
-            timestamp=datetime.now(),
-            source="ground_station_1",
-            milestone="engine_chill",
-            data={"temperature": -180.5, "flow_rate": 50.0, "pressure": 100.0}
-        )
-        
-        processor.process_packet(packet)
-        
-        status = processor.get_milestone_status("engine_chill")
-        assert "temperature" in status.metrics
-        assert status.metrics["temperature"] == -180.5

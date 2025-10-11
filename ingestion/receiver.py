@@ -16,6 +16,12 @@ class TelemetryReceiver:
         self.packet_count = 0
         self.error_count = 0
         self.callbacks: List[Callable[[TelemetryPacket], None]] = []
+        # SEEDED BUG #1: Out-of-order packet buffer initialized but never used
+        # Out-of-order packets are silently dropped instead of being buffered/reordered
+        # Current tests don't verify sequence ordering/reordering capability
+        # Future test needed: test_out_of_order_packet_buffering() and test_sequence_gap_within_threshold()
+        self.reorder_buffer: List[TelemetryPacket] = []
+        self.max_sequence_gap = 3
     
     def receive_packet(self, packet: TelemetryPacket) -> bool:
         """
@@ -42,18 +48,35 @@ class TelemetryReceiver:
         
         return True
     
-    async def receive_packet_async(self, packet: TelemetryPacket) -> bool:
+    async def receive_packet_async(self, packet: TelemetryPacket, retry_count: int = 0) -> bool:
         """
         Asynchronously receive and buffer a telemetry packet.
         
         Args:
             packet: The telemetry packet to receive
+            retry_count: Current retry attempt number
             
         Returns:
             True if packet was accepted, False otherwise
         """
-        await asyncio.sleep(0)
-        return self.receive_packet(packet)
+        # SEEDED BUG #2: Retry logic stops after 2 attempts instead of 3
+        # Should retry up to 3 times but condition uses < 2 instead of < 3
+        # Current tests don't verify retry count or exponential backoff behavior
+        # Future test needed: test_async_retry_with_three_attempts() and test_exponential_backoff_timing()
+        try:
+            await asyncio.sleep(0)
+            result = self.receive_packet(packet)
+            if not result and retry_count < 2:  # BUG: should be < 3
+                backoff = 0.5 * (2 ** retry_count)
+                await asyncio.sleep(backoff)
+                return await self.receive_packet_async(packet, retry_count + 1)
+            return result
+        except Exception:
+            # SEEDED BUG #3: Exception swallowed without emitting error event
+            # Should emit error event but instead silently returns False
+            # Current tests don't verify error event emission on failure
+            # Future test needed: test_async_failure_emits_error_event()
+            return False
     
     def get_packets(self, milestone: Optional[str] = None) -> List[TelemetryPacket]:
         """
