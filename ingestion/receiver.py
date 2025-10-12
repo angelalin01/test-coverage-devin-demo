@@ -33,6 +33,22 @@ class TelemetryReceiver:
         if len(self.packet_buffer) >= self.buffer_size:
             self.packet_buffer.pop(0)
         
+        seq = packet.sequence_number
+        if seq is not None and self.packet_buffer:
+            last_seq = self.packet_buffer[-1].sequence_number if hasattr(self.packet_buffer[-1], 'sequence_number') else None
+            if last_seq is not None and seq < last_seq and (last_seq - seq) <= self.max_sequence_gap:
+                inserted = False
+                for i, existing in enumerate(self.packet_buffer):
+                    ex_seq = existing.sequence_number if hasattr(existing, 'sequence_number') else None
+                    if ex_seq is not None and seq < ex_seq:
+                        self.packet_buffer.insert(i, packet)
+                        inserted = True
+                        break
+                if not inserted:
+                    self.packet_buffer.append(packet)
+                self.packet_count += 1
+                return True
+        
         self.packet_buffer.append(packet)
         self.packet_count += 1
         
@@ -58,6 +74,7 @@ class TelemetryReceiver:
                 return await self.receive_packet_async(packet, retry_count + 1)
             return result
         except Exception:
+            self.error_count += 1
             return False
     
     def get_stats(self) -> dict:
