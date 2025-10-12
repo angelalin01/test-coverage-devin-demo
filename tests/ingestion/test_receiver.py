@@ -199,3 +199,19 @@ class TestTelemetryReceiver:
         assert receiver.receive_packet(p3) is True
         seqs = [getattr(p, "sequence_number", None) for p in receiver.packet_buffer]
         assert seqs == [1, 2, 3]
+    
+    def test_receive_packet_validation_failure_with_empty_data(self, receiver):
+        """Test that packets with empty data are rejected and error_count increments."""
+        packet = TelemetryPacket(
+            packet_id="PKT-400",
+            timestamp=datetime.now(),
+            source="gs",
+            milestone="fuel_load",
+            data={}
+        )
+        
+        result = receiver.receive_packet(packet)
+        
+        assert result is False
+        assert receiver.error_count == 1
+        assert receiver.packet_count == 0

@@ -133,3 +133,17 @@ class TestMilestoneProcessor:
         status = processor.get_milestone_status("engine_chill")
         assert status.state == MilestoneState.IN_PROGRESS
         assert status.progress_percent == 50.0
+    
+    def test_is_milestone_complete(self, processor):
+        """Test is_milestone_complete method returns correct status."""
+        packet = TelemetryPacket(
+            packet_id="PKT-500",
+            timestamp=datetime.now(),
+            source="ground_station_1",
+            milestone="pressurization",
+            data={"status": "complete"}
+        )
+        processor.process_packet(packet)
+        
+        assert processor.is_milestone_complete("pressurization") is True
+        assert processor.is_milestone_complete("engine_chill") is False
