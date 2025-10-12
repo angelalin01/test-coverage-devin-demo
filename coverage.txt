@@ -6,25 +6,47 @@ configfile: pyproject.toml
 testpaths: tests
 plugins: asyncio-0.21.2, cov-4.1.0, anyio-3.7.1
 asyncio: mode=Mode.AUTO
-collecting ... collected 5 items
+collecting ... collected 26 items
 
-tests/ingestion/test_packet.py::TestTelemetryPacket::test_create_valid_packet PASSED [ 20%]
-tests/ingestion/test_receiver.py::TestTelemetryReceiver::test_receive_valid_packet PASSED [ 40%]
-tests/processors/test_milestone_processor.py::TestMilestoneProcessor::test_process_packet_updates_state PASSED [ 60%]
-tests/processors/test_milestone_processor.py::TestMilestoneProcessor::test_process_complete_milestone PASSED [ 80%]
-tests/status/test_readiness.py::TestReadinessComputer::test_ready_state PASSED [100%]
+tests/api/test_status_api.py::TestStatusAPI::test_submit_valid_packet_returns_201_like_response PASSED [  3%]
+tests/api/test_status_api.py::TestStatusAPI::test_submit_invalid_packet_raises_400 PASSED [  7%]
+tests/api/test_status_api.py::TestStatusAPI::test_readiness_happy_path PASSED [ 11%]
+tests/api/test_status_api_phase3.py::TestStatusAPIPhase3::test_get_milestone_status_returns_existing_milestone PASSED [ 15%]
+tests/api/test_status_api_phase3.py::TestStatusAPIPhase3::test_get_all_statuses_returns_all_milestones PASSED [ 19%]
+tests/api/test_status_api_phase3.py::TestStatusAPIPhase3::test_get_receiver_stats_returns_statistics PASSED [ 23%]
+tests/ingestion/test_packet.py::TestTelemetryPacket::test_create_valid_packet PASSED [ 26%]
+tests/ingestion/test_packet_phase3.py::TestTelemetryPacketPhase3::test_validate_packet_returns_false_for_empty_data PASSED [ 30%]
+tests/ingestion/test_receiver.py::TestTelemetryReceiver::test_receive_valid_packet PASSED [ 34%]
+tests/ingestion/test_receiver_phase2.py::TestTelemetryReceiverPhase2::test_async_retries_up_to_three_then_succeeds PASSED [ 38%]
+tests/ingestion/test_receiver_phase2.py::TestTelemetryReceiverPhase2::test_async_exception_increments_error_count PASSED [ 42%]
+tests/ingestion/test_receiver_phase2.py::TestTelemetryReceiverPhase2::test_sequence_gap_logic_leq3_accepted_gt3_rejected PASSED [ 46%]
+tests/ingestion/test_receiver_phase2.py::TestTelemetryReceiverPhase2::test_async_all_retries_fail_increments_error PASSED [ 50%]
+tests/ingestion/test_receiver_phase2.py::TestTelemetryReceiverPhase2::test_buffer_eviction_when_capacity_exceeded PASSED [ 53%]
+tests/ingestion/test_receiver_phase2.py::TestTelemetryReceiverPhase2::test_get_stats_returns_all_fields PASSED [ 57%]
+tests/processors/test_milestone_processor.py::TestMilestoneProcessor::test_process_packet_updates_state PASSED [ 61%]
+tests/processors/test_milestone_processor.py::TestMilestoneProcessor::test_process_complete_milestone PASSED [ 65%]
+tests/processors/test_milestone_processor_phase1.py::TestMilestoneProcessorPhase1::test_progress_bumps_state_from_not_started_to_in_progress PASSED [ 69%]
+tests/processors/test_milestone_processor_phase1.py::TestMilestoneProcessorPhase1::test_failed_sets_error_message PASSED [ 73%]
+tests/processors/test_milestone_processor_phase1.py::TestMilestoneProcessorPhase1::test_in_progress_to_complete_updates_progress_100 PASSED [ 76%]
+tests/processors/test_milestone_processor_phase3.py::TestMilestoneProcessorPhase3::test_is_milestone_complete_returns_true_for_complete PASSED [ 80%]
+tests/processors/test_milestone_processor_phase3.py::TestMilestoneProcessorPhase3::test_is_milestone_complete_returns_false_for_incomplete PASSED [ 84%]
+tests/status/test_readiness.py::TestReadinessComputer::test_ready_state PASSED [ 88%]
+tests/status/test_readiness_phase3.py::TestReadinessPhase3::test_scrubbed_state_when_critical_milestone_fails PASSED [ 92%]
+tests/status/test_readiness_phase3.py::TestReadinessPhase3::test_hold_state_when_noncritical_milestone_fails PASSED [ 96%]
+tests/status/test_readiness_phase3.py::TestReadinessPhase3::test_not_ready_when_critical_milestones_pending PASSED [100%]
 
 ---------- coverage: platform linux, python 3.12.8-final-0 -----------
-Name                                Stmts   Miss  Cover   Missing
------------------------------------------------------------------
-api/server.py                          55     55     0%   1-101
-ingestion/packet.py                    25      3    88%   29, 48, 51
-ingestion/receiver.py                  33     14    58%   30-31, 34, 52-61, 65
-processors/milestone_processor.py      56      9    84%   65, 77-79, 82-84, 102-103
-status/readiness.py                    59     15    75%   49-52, 79-82, 92-95, 102-106
------------------------------------------------------------------
-TOTAL                                 228     96    58%
+Name                                Stmts   Miss Branch BrPart  Cover   Missing
+-------------------------------------------------------------------------------
+api/server.py                          55     19      4      1    66%   52, 73-101
+ingestion/packet.py                    25      2      6      2    87%   29, 48
+ingestion/receiver.py                  44      0     14      0   100%
+main.py                                 2      2      0      0     0%   1-2
+processors/milestone_processor.py      56      1     20      2    96%   65, 77->81
+status/readiness.py                    59      0     20      0   100%
+-------------------------------------------------------------------------------
+TOTAL                                 241     24     64      5    90%
 Coverage HTML written to dir htmlcov
 
 
-============================== 5 passed in 0.32s ===============================
+============================== 26 passed in 1.11s ==============================

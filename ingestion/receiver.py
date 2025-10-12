@@ -15,6 +15,7 @@ class TelemetryReceiver:
         self.error_count = 0
         self.reorder_buffer: List[TelemetryPacket] = []
         self.max_sequence_gap = 3
+        self.last_sequence = None
     
     def receive_packet(self, packet: TelemetryPacket) -> bool:
         """
@@ -29,6 +30,13 @@ class TelemetryReceiver:
         if not validate_packet(packet):
             self.error_count += 1
             return False
+
+        if packet.sequence_number is not None:
+            if self.last_sequence is not None:
+                if packet.sequence_number <= self.last_sequence or (packet.sequence_number - self.last_sequence) > self.max_sequence_gap:
+                    self.error_count += 1
+                    return False
+            self.last_sequence = packet.sequence_number
         
         if len(self.packet_buffer) >= self.buffer_size:
             self.packet_buffer.pop(0)
@@ -52,12 +60,16 @@ class TelemetryReceiver:
         try:
             await asyncio.sleep(0)
             result = self.receive_packet(packet)
-            if not result and retry_count < 2:
-                backoff = 0.5 * (2 ** retry_count)
-                await asyncio.sleep(backoff)
-                return await self.receive_packet_async(packet, retry_count + 1)
+            if not result:
+                if retry_count < 3:
+                    backoff = 0.5 * (2 ** retry_count)
+                    await asyncio.sleep(backoff)
+                    return await self.receive_packet_async(packet, retry_count + 1)
+                self.error_count += 1
+                return False
             return result
         except Exception:
+            self.error_count += 1
             return False
     
     def get_stats(self) -> dict:
