@@ -65,12 +65,6 @@ class MilestoneProcessor:
             return False
         
         status = self.milestone_states[packet.milestone]
-        
-        # SEEDED BUG #5: Duplicate packets overwrite state without checking packet_id
-        # No deduplication - same packet can be processed multiple times, corrupting metrics
-        # Current tests don't verify duplicate packet rejection
-        # Future test needed: test_process_duplicate_packet_rejected()
-        
         status.last_update = packet.timestamp
         
         if 'status' in packet.data:
@@ -96,66 +90,14 @@ class MilestoneProcessor:
         return True
     
     def get_milestone_status(self, milestone: str) -> Optional[MilestoneStatus]:
-        """
-        Get the current status of a milestone.
-        
-        Args:
-            milestone: The milestone identifier
-            
-        Returns:
-            MilestoneStatus or None if milestone not found
-        """
+        """Get the current status of a milestone."""
         return self.milestone_states.get(milestone)
     
     def get_all_statuses(self) -> Dict[str, MilestoneStatus]:
-        """
-        Get all milestone statuses.
-        
-        Returns:
-            Dictionary of milestone statuses
-        """
+        """Get all milestone statuses."""
         return dict(self.milestone_states)
     
     def is_milestone_complete(self, milestone: str) -> bool:
-        """
-        Check if a milestone is complete.
-        
-        Args:
-            milestone: The milestone identifier
-            
-        Returns:
-            True if milestone is complete
-        """
+        """Check if a milestone is complete."""
         status = self.milestone_states.get(milestone)
         return status.state == MilestoneState.COMPLETE if status else False
-    
-    def reset_milestone(self, milestone: str) -> bool:
-        """
-        Reset a milestone to NOT_STARTED state.
-        
-        Args:
-            milestone: The milestone identifier
-            
-        Returns:
-            True if milestone was reset
-        """
-        if milestone not in self.milestone_states:
-            return False
-        
-        self.milestone_states[milestone] = MilestoneStatus(
-            milestone=milestone,
-            state=MilestoneState.NOT_STARTED
-        )
-        return True
-    
-    def get_completion_count(self) -> int:
-        """
-        Get the number of completed milestones.
-        
-        Returns:
-            Count of completed milestones
-        """
-        return sum(
-            1 for status in self.milestone_states.values()
-            if status.state == MilestoneState.COMPLETE
-        )

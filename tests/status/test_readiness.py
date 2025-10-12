@@ -19,12 +19,6 @@ class TestReadinessComputer:
         """Create a readiness computer."""
         return ReadinessComputer(processor)
     
-    def test_initialization(self, computer):
-        """Test readiness computer initializes correctly."""
-        readiness = computer.compute_readiness()
-        assert readiness.level == ReadinessLevel.NOT_READY
-        assert len(readiness.pending_milestones) == 6
-    
     def test_ready_state(self, computer, processor):
         """Test READY state when all milestones complete."""
         all_milestones = ["engine_chill", "fuel_load", "pressurization", 

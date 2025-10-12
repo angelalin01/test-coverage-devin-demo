@@ -1,4 +1,4 @@
-from .packet import TelemetryPacket, PacketValidator
+from .packet import TelemetryPacket
 from .receiver import TelemetryReceiver
 
-__all__ = ["TelemetryPacket", "PacketValidator", "TelemetryReceiver"]
+__all__ = ["TelemetryPacket", "TelemetryReceiver"]

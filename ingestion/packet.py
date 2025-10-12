@@ -32,82 +32,22 @@ class TelemetryPacket(BaseModel):
     def is_valid(self) -> bool:
         """Check if packet has valid structure and required fields."""
         return bool(self.packet_id and self.timestamp and self.source and self.milestone)
-    
-    def get_metric_value(self, metric_name: str) -> Optional[Any]:
-        """Extract a specific metric value from packet data."""
-        return self.data.get(metric_name)
 
 
-class PacketValidator:
+def validate_packet(packet: TelemetryPacket) -> bool:
     """
-    Validates telemetry packets for correctness and completeness.
+    Validate a telemetry packet.
+    
+    Args:
+        packet: The telemetry packet to validate
+        
+    Returns:
+        True if packet is valid, False otherwise
     """
+    if not packet.is_valid():
+        return False
     
-    @staticmethod
-    def validate_packet(packet: TelemetryPacket) -> bool:
-        """
-        Validate a telemetry packet.
-        
-        Args:
-            packet: The telemetry packet to validate
-            
-        Returns:
-            True if packet is valid, False otherwise
-        """
-        if not packet.is_valid():
-            return False
-        
-        if not packet.data:
-            return False
-        
-        # SEEDED BUG #4: Malformed data values are not validated
-        # Packet is marked valid even if data contains wrong types (e.g., string instead of float)
-        # Current tests don't verify type correctness of metric values
-        # Future test needed: test_validate_packet_with_type_mismatches()
-        
-        return True
+    if not packet.data:
+        return False
     
-    @staticmethod
-    def validate_sequence(packets: list[TelemetryPacket]) -> bool:
-        """
-        Validate that a sequence of packets is in order.
-        
-        Args:
-            packets: List of telemetry packets
-            
-        Returns:
-            True if packets are in valid sequence
-        """
-        if not packets:
-            return True
-        
-        for i in range(1, len(packets)):
-            if packets[i].sequence_number is None or packets[i-1].sequence_number is None:
-                continue
-            
-            if packets[i].sequence_number <= packets[i-1].sequence_number:
-                return False
-        
-        return True
-    
-    @staticmethod
-    def detect_duplicates(packets: list[TelemetryPacket]) -> list[str]:
-        """
-        Detect duplicate packets in a sequence.
-        
-        Args:
-            packets: List of telemetry packets
-            
-        Returns:
-            List of duplicate packet IDs
-        """
-        seen_ids = set()
-        duplicates = []
-        
-        for packet in packets:
-            if packet.packet_id in seen_ids:
-                duplicates.append(packet.packet_id)
-            else:
-                seen_ids.add(packet.packet_id)
-        
-        return duplicates
+    return True

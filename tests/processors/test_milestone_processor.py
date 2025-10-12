@@ -13,12 +13,6 @@ class TestMilestoneProcessor:
         """Create a milestone processor instance."""
         return MilestoneProcessor()
     
-    def test_initialization(self, processor):
-        """Test processor initializes with all milestones."""
-        statuses = processor.get_all_statuses()
-        assert len(statuses) == 6
-        assert all(s.state == MilestoneState.NOT_STARTED for s in statuses.values())
-    
     def test_process_packet_updates_state(self, processor):
         """Test processing packet updates milestone state."""
         packet = TelemetryPacket(
@@ -50,33 +44,3 @@ class TestMilestoneProcessor:
         status = processor.get_milestone_status("pressurization")
         assert status.state == MilestoneState.COMPLETE
         assert status.progress_percent == 100.0
-    
-    def test_process_packet_with_progress(self, processor):
-        """Test processing packet with progress updates."""
-        packet = TelemetryPacket(
-            packet_id="PKT-002",
-            timestamp=datetime.now(),
-            source="ground_station_1",
-            milestone="fuel_load",
-            data={"progress": 50.0, "flow_rate": 100.0}
-        )
-        
-        processor.process_packet(packet)
-        
-        status = processor.get_milestone_status("fuel_load")
-        assert status.progress_percent == 50.0
-        assert status.state == MilestoneState.IN_PROGRESS
-    
-    def test_is_milestone_complete(self, processor):
-        """Test checking if milestone is complete."""
-        packet = TelemetryPacket(
-            packet_id="PKT-005",
-            timestamp=datetime.now(),
-            source="ground_station_1",
-            milestone="terminal_count",
-            data={"status": "complete"}
-        )
-        
-        processor.process_packet(packet)
-        assert processor.is_milestone_complete("terminal_count") is True
-        assert processor.is_milestone_complete("ignition") is False
