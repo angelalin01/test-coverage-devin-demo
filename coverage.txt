@@ -6,18 +6,21 @@ configfile: pyproject.toml
 testpaths: tests
 plugins: asyncio-0.21.2, cov-4.1.0, anyio-3.7.1
 asyncio: mode=Mode.AUTO
-collecting ... collected 11 items
+collecting ... collected 14 items
 
-tests/api/test_status_api.py::TestStatusAPI::test_submit_valid_packet_returns_201_like_response PASSED [  9%]
-tests/api/test_status_api.py::TestStatusAPI::test_submit_invalid_packet_raises_400 PASSED [ 18%]
-tests/api/test_status_api.py::TestStatusAPI::test_readiness_happy_path PASSED [ 27%]
-tests/ingestion/test_packet.py::TestTelemetryPacket::test_create_valid_packet PASSED [ 36%]
-tests/ingestion/test_receiver.py::TestTelemetryReceiver::test_receive_valid_packet PASSED [ 45%]
-tests/processors/test_milestone_processor.py::TestMilestoneProcessor::test_process_packet_updates_state PASSED [ 54%]
-tests/processors/test_milestone_processor.py::TestMilestoneProcessor::test_process_complete_milestone PASSED [ 63%]
-tests/processors/test_milestone_processor_phase1.py::TestMilestoneProcessorPhase1::test_progress_bumps_state_from_not_started_to_in_progress PASSED [ 72%]
-tests/processors/test_milestone_processor_phase1.py::TestMilestoneProcessorPhase1::test_failed_sets_error_message PASSED [ 81%]
-tests/processors/test_milestone_processor_phase1.py::TestMilestoneProcessorPhase1::test_in_progress_to_complete_updates_progress_100 PASSED [ 90%]
+tests/api/test_status_api.py::TestStatusAPI::test_submit_valid_packet_returns_201_like_response PASSED [  7%]
+tests/api/test_status_api.py::TestStatusAPI::test_submit_invalid_packet_raises_400 PASSED [ 14%]
+tests/api/test_status_api.py::TestStatusAPI::test_readiness_happy_path PASSED [ 21%]
+tests/ingestion/test_packet.py::TestTelemetryPacket::test_create_valid_packet PASSED [ 28%]
+tests/ingestion/test_receiver.py::TestTelemetryReceiver::test_receive_valid_packet PASSED [ 35%]
+tests/ingestion/test_receiver_phase2.py::TestTelemetryReceiverPhase2::test_async_retries_up_to_three_then_succeeds PASSED [ 42%]
+tests/ingestion/test_receiver_phase2.py::TestTelemetryReceiverPhase2::test_async_exception_increments_error_count PASSED [ 50%]
+tests/ingestion/test_receiver_phase2.py::TestTelemetryReceiverPhase2::test_sequence_gap_logic_leq3_accepted_gt3_rejected PASSED [ 57%]
+tests/processors/test_milestone_processor.py::TestMilestoneProcessor::test_process_packet_updates_state PASSED [ 64%]
+tests/processors/test_milestone_processor.py::TestMilestoneProcessor::test_process_complete_milestone PASSED [ 71%]
+tests/processors/test_milestone_processor_phase1.py::TestMilestoneProcessorPhase1::test_progress_bumps_state_from_not_started_to_in_progress PASSED [ 78%]
+tests/processors/test_milestone_processor_phase1.py::TestMilestoneProcessorPhase1::test_failed_sets_error_message PASSED [ 85%]
+tests/processors/test_milestone_processor_phase1.py::TestMilestoneProcessorPhase1::test_in_progress_to_complete_updates_progress_100 PASSED [ 92%]
 tests/status/test_readiness.py::TestReadinessComputer::test_ready_state PASSED [100%]
 
 ---------- coverage: platform linux, python 3.12.8-final-0 -----------
@@ -25,13 +28,13 @@ Name                                Stmts   Miss Branch BrPart  Cover   Missing
 -------------------------------------------------------------------------------
 api/server.py                          55     24      4      0    56%   50-56, 60, 68, 73-101
 ingestion/packet.py                    25      2      6      2    87%   29, 48
-ingestion/receiver.py                  33     12      6      1    62%   34, 52-61, 65
+ingestion/receiver.py                  44      4     14      2    90%   42, 68-69, 77
 main.py                                 2      2      0      0     0%   1-2
 processors/milestone_processor.py      56      3     20      2    93%   65, 77->81, 102-103
 status/readiness.py                    59      8     20      5    81%   50, 79-82, 95, 103, 105
 -------------------------------------------------------------------------------
-TOTAL                                 230     51     56     10    77%
+TOTAL                                 241     43     64     11    81%
 Coverage HTML written to dir htmlcov
 
 
-============================== 11 passed in 1.04s ==============================
+============================== 14 passed in 1.06s ==============================
