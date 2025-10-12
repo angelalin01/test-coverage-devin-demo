@@ -28,13 +28,19 @@ class StatusAPI:
     
     def submit_packet(self, packet_data: PacketSubmission) -> Dict:
         """Submit a telemetry packet for processing."""
-        packet = TelemetryPacket(
-            packet_id=packet_data.packet_id,
-            timestamp=packet_data.timestamp,
-            source=packet_data.source,
-            milestone=packet_data.milestone,
-            data=packet_data.data
-        )
+        try:
+            packet = TelemetryPacket(
+                packet_id=packet_data.packet_id,
+                timestamp=packet_data.timestamp,
+                source=packet_data.source,
+                milestone=packet_data.milestone,
+                data=packet_data.data
+            )
+        except Exception as e:
+            raise HTTPException(
+                status_code=http_status.HTTP_400_BAD_REQUEST,
+                detail=f"Invalid packet data: {e}"
+            )
         
         if not self.receiver.receive_packet(packet):
             raise HTTPException(
