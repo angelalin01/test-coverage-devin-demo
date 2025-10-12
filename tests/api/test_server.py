@@ -2,7 +2,7 @@ import pytest
 from datetime import datetime
 from fastapi.testclient import TestClient
 
-from api.server import create_app
+from api.server import create_app, StatusAPI, PacketSubmission
 from processors.milestone_processor import MilestoneState
 from status.readiness import ReadinessLevel
 
@@ -96,3 +96,24 @@ class TestServerAPI:
         data = response.json()
         assert data["status"] == "healthy"
         assert "timestamp" in data
+    
+    def test_get_receiver_stats(self):
+        """Test StatusAPI.get_receiver_stats returns receiver statistics."""
+        api = StatusAPI()
+        
+        packet_data = PacketSubmission(
+            packet_id="PKT-STATS-001",
+            timestamp=datetime.now(),
+            source="ground_station_1",
+            milestone="fuel_load",
+            data={"status": "in_progress"}
+        )
+        api.submit_packet(packet_data)
+        
+        stats = api.get_receiver_stats()
+        
+        assert 'packet_count' in stats
+        assert 'error_count' in stats
+        assert 'buffer_size' in stats
+        assert 'buffer_capacity' in stats
+        assert stats['packet_count'] >= 1

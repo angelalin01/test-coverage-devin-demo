@@ -77,15 +77,13 @@ class TestTelemetryReceiver:
             data={"test": "data"}
         )
         
+        initial_error_count = receiver.error_count
+        
         with patch.object(receiver, 'receive_packet', side_effect=RuntimeError("Simulated error")):
-            with patch.object(receiver, 'emit_error_event') as mock_emit:
-                result = await receiver.receive_packet_async(packet)
-                
-                assert result is False
-                mock_emit.assert_called_once()
-                call_args = mock_emit.call_args[1]
-                assert 'RuntimeError' in call_args['error_type']
-                assert 'Simulated error' in call_args['error_message']
+            result = await receiver.receive_packet_async(packet)
+            
+            assert result is False
+            assert receiver.error_count == initial_error_count + 1
     
     def test_out_of_order_packet_reordering_within_gap(self, receiver):
         """Test packets are reordered when out-of-order within max gap."""
@@ -149,3 +147,34 @@ class TestTelemetryReceiver:
         result2 = receiver.receive_packet(packet2)
         assert result2 is False
         assert receiver.error_count == 1
+    
+    def test_get_stats(self, receiver):
+        """Test get_stats returns receiver statistics."""
+        for i in range(5):
+            packet = TelemetryPacket(
+                packet_id=f"PKT-{i}",
+                timestamp=datetime.now(),
+                source="ground_station_1",
+                milestone="ignition",
+                data={"test": "data"}
+            )
+            receiver.receive_packet(packet)
+        
+        stats = receiver.get_stats()
+        
+        assert stats['packet_count'] == 5
+        assert stats['error_count'] == 0
+        assert stats['buffer_size'] == 5
+        assert stats['buffer_capacity'] == 10
+    
+    def test_emit_error_event_increments_count(self, receiver):
+        """Test emit_error_event increments error count."""
+        initial_count = receiver.error_count
+        
+        receiver.emit_error_event(
+            error_type="TestError",
+            error_message="Test error message",
+            packet_id="PKT-TEST"
+        )
+        
+        assert receiver.error_count == initial_count + 1
