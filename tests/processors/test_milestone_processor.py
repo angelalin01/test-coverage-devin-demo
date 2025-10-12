@@ -26,7 +26,7 @@ class TestMilestoneProcessor:
         result = processor.process_packet(packet)
         assert result is True
         
-        status = processor.get_milestone_status("engine_chill")
+        status = processor.milestone_states["engine_chill"]
         assert status.state == MilestoneState.IN_PROGRESS
     
     def test_process_complete_milestone(self, processor):
@@ -41,6 +41,6 @@ class TestMilestoneProcessor:
         
         processor.process_packet(packet)
         
-        status = processor.get_milestone_status("pressurization")
+        status = processor.milestone_states["pressurization"]
         assert status.state == MilestoneState.COMPLETE
         assert status.progress_percent == 100.0

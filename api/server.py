@@ -5,7 +5,7 @@ from pydantic import BaseModel
 
 from ingestion.packet import TelemetryPacket
 from ingestion.receiver import TelemetryReceiver
-from processors.milestone_processor import MilestoneProcessor, MilestoneStatus
+from processors.milestone_processor import MilestoneProcessor
 from status.readiness import ReadinessComputer, LaunchReadiness
 
 
@@ -45,27 +45,9 @@ class StatusAPI:
         self.processor.process_packet(packet)
         return {"status": "accepted", "packet_id": packet.packet_id}
     
-    def get_milestone_status(self, milestone: str) -> MilestoneStatus:
-        """Get status for a specific milestone."""
-        status = self.processor.get_milestone_status(milestone)
-        if not status:
-            raise HTTPException(
-                status_code=http_status.HTTP_404_NOT_FOUND,
-                detail=f"Milestone {milestone} not found"
-            )
-        return status
-    
-    def get_all_statuses(self) -> Dict[str, MilestoneStatus]:
-        """Get all milestone statuses."""
-        return self.processor.get_all_statuses()
-    
     def get_readiness(self) -> LaunchReadiness:
         """Get overall launch readiness."""
         return self.readiness_computer.compute_readiness()
-    
-    def get_receiver_stats(self) -> Dict:
-        """Get telemetry receiver statistics."""
-        return self.receiver.get_stats()
 
 
 def create_app() -> FastAPI:
@@ -82,20 +64,8 @@ def create_app() -> FastAPI:
     async def submit_packet(packet: PacketSubmission):
         return api.submit_packet(packet)
     
-    @app.get("/milestones/{milestone}")
-    async def get_milestone(milestone: str):
-        return api.get_milestone_status(milestone)
-    
-    @app.get("/milestones")
-    async def get_all_milestones():
-        return api.get_all_statuses()
-    
     @app.get("/readiness")
     async def get_readiness():
         return api.get_readiness()
-    
-    @app.get("/health")
-    async def health_check():
-        return {"status": "healthy", "timestamp": datetime.now()}
     
     return app

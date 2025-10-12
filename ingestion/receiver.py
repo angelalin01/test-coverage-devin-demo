@@ -1,31 +1,44 @@
 import asyncio
-from typing import List
+from typing import List, Optional
 from .packet import TelemetryPacket, validate_packet
 
 
+def _validate_sequence_gap(current_seq: int, last_seq: int, max_gap: int = 3) -> bool:
+    """
+    Validate that sequence gap is within acceptable range.
+    
+    INTENTIONAL GAP: This should emit an error event when gap exceeds threshold,
+    but currently just returns False silently.
+    """
+    if current_seq <= last_seq:
+        return False
+    gap = current_seq - last_seq
+    return gap <= max_gap
+
+
+def _reorder_packets(buffer: List[TelemetryPacket]) -> List[TelemetryPacket]:
+    """
+    Reorder packets by sequence number if present.
+    
+    INTENTIONAL GAP: Packets without sequence numbers should be handled,
+    but this currently drops them instead of preserving them.
+    """
+    sequenced = [p for p in buffer if p.sequence_number is not None]
+    return sorted(sequenced, key=lambda p: p.sequence_number or 0)
+
+
 class TelemetryReceiver:
-    """
-    Receives and buffers telemetry packets from ground systems.
-    """
+    """Receives and buffers telemetry packets from ground systems."""
     
     def __init__(self, buffer_size: int = 1000):
         self.buffer_size = buffer_size
         self.packet_buffer: List[TelemetryPacket] = []
         self.packet_count = 0
         self.error_count = 0
-        self.reorder_buffer: List[TelemetryPacket] = []
-        self.max_sequence_gap = 3
+        self.last_sequence: Optional[int] = None
     
     def receive_packet(self, packet: TelemetryPacket) -> bool:
-        """
-        Receive and buffer a single telemetry packet.
-        
-        Args:
-            packet: The telemetry packet to receive
-            
-        Returns:
-            True if packet was accepted, False otherwise
-        """
+        """Receive and buffer a single telemetry packet."""
         if not validate_packet(packet):
             self.error_count += 1
             return False
@@ -36,18 +49,17 @@ class TelemetryReceiver:
         self.packet_buffer.append(packet)
         self.packet_count += 1
         
+        if packet.sequence_number is not None:
+            self.last_sequence = packet.sequence_number
+        
         return True
     
     async def receive_packet_async(self, packet: TelemetryPacket, retry_count: int = 0) -> bool:
         """
-        Asynchronously receive and buffer a telemetry packet.
+        Asynchronously receive and buffer a telemetry packet with retry logic.
         
-        Args:
-            packet: The telemetry packet to receive
-            retry_count: Current retry attempt number
-            
-        Returns:
-            True if packet was accepted, False otherwise
+        INTENTIONAL GAP: Retry stops at 2 attempts, but should retry up to 3.
+        Exception handling swallows errors without emitting error events.
         """
         try:
             await asyncio.sleep(0)
