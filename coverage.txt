@@ -17,14 +17,14 @@ tests/status/test_readiness.py::TestReadinessComputer::test_ready_state PASSED [
 ---------- coverage: platform linux, python 3.12.8-final-0 -----------
 Name                                Stmts   Miss  Cover   Missing
 -----------------------------------------------------------------
-api/server.py                          55     17    69%   31-46, 50-56, 60, 64, 68, 83, 87, 91, 95, 99
+api/server.py                          55      1    98%   68
 ingestion/packet.py                    25      0   100%
 ingestion/receiver.py                  55      2    96%   102, 106
 main.py                                 2      2     0%   1-2
 processors/milestone_processor.py      56      1    98%   65
 status/readiness.py                    59      0   100%
 -----------------------------------------------------------------
-TOTAL                                 252     22    91%
+TOTAL                                 252      6    98%
 Coverage HTML written to dir htmlcov
 
 
