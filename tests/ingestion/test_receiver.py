@@ -150,3 +150,52 @@ class TestTelemetryReceiver:
         assert stats['error_count'] == 0
         assert stats['buffer_size'] == 1
         assert stats['buffer_capacity'] == 10
+    
+    @pytest.mark.asyncio
+    async def test_receive_packet_async_exception_increments_error_count(self, receiver):
+        """Failing first: exceptions should not be silent; error_count should increment."""
+        from unittest.mock import patch
+        packet = TelemetryPacket(
+            packet_id="PKT-200",
+            timestamp=datetime.now(),
+            source="ground_station_1",
+            milestone="engine_chill",
+            data={"status": "in_progress"}
+        )
+        before = receiver.error_count
+        with patch.object(receiver, 'receive_packet', side_effect=RuntimeError("boom")):
+            result = await receiver.receive_packet_async(packet)
+        assert result is False
+        assert receiver.error_count == before + 1
+    
+    def test_reorder_buffer_within_gap_buffers_and_orders(self, receiver):
+        """Failing first: out-of-order packets within gap ≤ 3 should be accepted and ordered."""
+        p2 = TelemetryPacket(
+            packet_id="PKT-302",
+            timestamp=datetime.now(),
+            source="gs",
+            milestone="fuel_load",
+            data={"status": "in_progress"},
+            sequence_number=2
+        )
+        p1 = TelemetryPacket(
+            packet_id="PKT-301",
+            timestamp=datetime.now(),
+            source="gs",
+            milestone="fuel_load",
+            data={"status": "in_progress"},
+            sequence_number=1
+        )
+        p3 = TelemetryPacket(
+            packet_id="PKT-303",
+            timestamp=datetime.now(),
+            source="gs",
+            milestone="fuel_load",
+            data={"status": "in_progress"},
+            sequence_number=3
+        )
+        assert receiver.receive_packet(p2) is True
+        assert receiver.receive_packet(p1) is True
+        assert receiver.receive_packet(p3) is True
+        seqs = [getattr(p, "sequence_number", None) for p in receiver.packet_buffer]
+        assert seqs == [1, 2, 3]
