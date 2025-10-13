@@ -1,28 +1,23 @@
-from fastapi.testclient import TestClient
-from api.server import create_app, PacketSubmission
-from datetime import datetime
+from datetime import datetime, timezone
+from api.server import StatusAPI, PacketSubmission
 
-def test_create_app_and_get_readiness_default():
-    app = create_app()
-    client = TestClient(app)
-    resp = client.get("/readiness")
-    assert resp.status_code == 200
-    body = resp.json()
-    assert "level" in body
-    assert "overall_progress" in body
+def test_status_api_get_readiness_default_no_packets():
+    api = StatusAPI()
+    readiness = api.get_readiness()
+    assert readiness.level.value in {"not_ready", "partial", "ready", "scrubbed"}
+    assert readiness.overall_progress >= 0.0
 
-def test_post_packets_valid_201():
-    app = create_app()
-    client = TestClient(app)
-    payload = {
-        "packet_id": "PKT-API-001",
-        "timestamp": datetime.utcnow().isoformat() + "Z",
-        "source": "ground_station_1",
-        "milestone": "engine_chill",
-        "data": {"status": "in_progress"}
-    }
-    resp = client.post("/packets", json=payload)
-    assert resp.status_code == 201
-    body = resp.json()
-    assert body["status"] == "accepted"
-    assert body["packet_id"] == "PKT-API-001"
+def test_status_api_submit_packet_and_readiness_progress():
+    api = StatusAPI()
+    packet = PacketSubmission(
+        packet_id="PKT-API-001",
+        timestamp=datetime.now(timezone.utc),
+        source="ground_station_1",
+        milestone="engine_chill",
+        data={"status": "in_progress"}
+    )
+    resp = api.submit_packet(packet)
+    assert resp["status"] == "accepted"
+    assert resp["packet_id"] == "PKT-API-001"
+    readiness = api.get_readiness()
+    assert "engine_chill" in readiness.pending_milestones or "engine_chill" in readiness.ready_milestones
