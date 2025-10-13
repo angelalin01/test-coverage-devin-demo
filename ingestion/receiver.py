@@ -64,12 +64,13 @@ class TelemetryReceiver:
         try:
             await asyncio.sleep(0)
             result = self.receive_packet(packet)
-            if not result and retry_count < 2:
+            if not result and retry_count < 3:
                 backoff = 0.5 * (2 ** retry_count)
                 await asyncio.sleep(backoff)
                 return await self.receive_packet_async(packet, retry_count + 1)
             return result
         except Exception:
+            self.error_count += 1
             return False
     
     def get_stats(self) -> dict:

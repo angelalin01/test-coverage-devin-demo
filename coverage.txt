@@ -1,31 +1,39 @@
 ============================= test session starts ==============================
-platform linux -- Python 3.12.8, pytest-7.4.4, pluggy-1.6.0 -- /home/ubuntu/.cache/pypoetry/virtualenvs/telemetry-status-service-1y822yDO-py3.12/bin/python
-cachedir: .pytest_cache
+platform linux -- Python 3.12.8, pytest-7.4.4, pluggy-1.6.0
 rootdir: /home/ubuntu/repos/test-coverage-devin-demo
 configfile: pyproject.toml
 testpaths: tests
 plugins: asyncio-0.21.2, cov-4.1.0, anyio-3.7.1
 asyncio: mode=Mode.AUTO
-collecting ... collected 5 items
+collected 22 items
 
-tests/ingestion/test_packet.py::TestTelemetryPacket::test_create_valid_packet PASSED [ 20%]
-tests/ingestion/test_receiver.py::TestTelemetryReceiver::test_receive_valid_packet PASSED [ 40%]
-tests/processors/test_milestone_processor.py::TestMilestoneProcessor::test_process_packet_updates_state PASSED [ 60%]
-tests/processors/test_milestone_processor.py::TestMilestoneProcessor::test_process_complete_milestone PASSED [ 80%]
-tests/status/test_readiness.py::TestReadinessComputer::test_ready_state PASSED [100%]
+tests/api/test_server_basic.py ..                                        [  9%]
+tests/api/test_server_integration.py ...                                 [ 22%]
+tests/ingestion/test_buffer_eviction.py .                                [ 27%]
+tests/ingestion/test_packet.py .                                         [ 31%]
+tests/ingestion/test_packet_validation_edges.py .                        [ 36%]
+tests/ingestion/test_receiver.py .                                       [ 40%]
+tests/ingestion/test_receiver_async_failures.py ..                       [ 50%]
+tests/ingestion/test_receiver_stats.py .                                 [ 54%]
+tests/ingestion/test_sequence_gap_helpers.py ..                          [ 63%]
+tests/processors/test_milestone_failures_and_unknown.py ..               [ 72%]
+tests/processors/test_milestone_processor.py ..                          [ 81%]
+tests/processors/test_milestone_progress_promotion.py .                  [ 86%]
+tests/status/test_readiness.py .                                         [ 90%]
+tests/status/test_readiness_critical_vs_noncritical.py ..                [100%]
 
 ---------- coverage: platform linux, python 3.12.8-final-0 -----------
 Name                                Stmts   Miss  Cover   Missing
 -----------------------------------------------------------------
-api/server.py                          37     37     0%   1-71
-ingestion/packet.py                    19      1    95%   21
-ingestion/receiver.py                  42     21    50%   13-16, 26-27, 43-44, 47, 53, 64-73, 77
+api/server.py                          37      0   100%
+ingestion/packet.py                    19      0   100%
+ingestion/receiver.py                  43      1    98%   53
 main.py                                 2      2     0%   1-2
-processors/milestone_processor.py      42      7    83%   40, 52-54, 57-59
-status/readiness.py                    48     10    79%   46-49, 58-59, 63-68
+processors/milestone_processor.py      42      1    98%   40
+status/readiness.py                    48      0   100%
 -----------------------------------------------------------------
-TOTAL                                 190     78    59%
+TOTAL                                 191      4    98%
 Coverage HTML written to dir htmlcov
 
 
-============================== 5 passed in 0.32s ===============================
+======================= 22 passed, 20 warnings in 1.42s ========================
