@@ -5,32 +5,35 @@ configfile: pyproject.toml
 testpaths: tests
 plugins: asyncio-0.21.2, cov-4.1.0, anyio-3.7.1
 asyncio: mode=Mode.AUTO
-collected 15 items
+collected 22 items
 
-tests/api/test_server_basic.py ..                                        [ 13%]
-tests/ingestion/test_buffer_eviction.py .                                [ 20%]
-tests/ingestion/test_packet.py .                                         [ 26%]
-tests/ingestion/test_packet_validation_edges.py .                        [ 33%]
+tests/api/test_server_basic.py ..                                        [  9%]
+tests/api/test_server_integration.py ...                                 [ 22%]
+tests/ingestion/test_buffer_eviction.py .                                [ 27%]
+tests/ingestion/test_packet.py .                                         [ 31%]
+tests/ingestion/test_packet_validation_edges.py .                        [ 36%]
 tests/ingestion/test_receiver.py .                                       [ 40%]
-tests/ingestion/test_receiver_async_failures.py ..                       [ 53%]
-tests/ingestion/test_receiver_stats.py .                                 [ 60%]
-tests/ingestion/test_sequence_gap_helpers.py ..                          [ 73%]
-tests/processors/test_milestone_processor.py ..                          [ 86%]
-tests/processors/test_milestone_progress_promotion.py .                  [ 93%]
-tests/status/test_readiness.py .                                         [100%]
+tests/ingestion/test_receiver_async_failures.py ..                       [ 50%]
+tests/ingestion/test_receiver_stats.py .                                 [ 54%]
+tests/ingestion/test_sequence_gap_helpers.py ..                          [ 63%]
+tests/processors/test_milestone_failures_and_unknown.py ..               [ 72%]
+tests/processors/test_milestone_processor.py ..                          [ 81%]
+tests/processors/test_milestone_progress_promotion.py .                  [ 86%]
+tests/status/test_readiness.py .                                         [ 90%]
+tests/status/test_readiness_critical_vs_noncritical.py ..                [100%]
 
 ---------- coverage: platform linux, python 3.12.8-final-0 -----------
 Name                                Stmts   Miss  Cover   Missing
 -----------------------------------------------------------------
-api/server.py                          37     10    73%   40, 55-71
-ingestion/packet.py                    19      1    95%   21
+api/server.py                          37      0   100%
+ingestion/packet.py                    19      0   100%
 ingestion/receiver.py                  43      1    98%   53
 main.py                                 2      2     0%   1-2
-processors/milestone_processor.py      42      4    90%   40, 52-54
-status/readiness.py                    48      5    90%   47, 58-59, 64-65
+processors/milestone_processor.py      42      1    98%   40
+status/readiness.py                    48      0   100%
 -----------------------------------------------------------------
-TOTAL                                 191     23    88%
+TOTAL                                 191      4    98%
 Coverage HTML written to dir htmlcov
 
 
-======================= 15 passed, 11 warnings in 1.00s ========================
+======================= 22 passed, 20 warnings in 1.42s ========================
