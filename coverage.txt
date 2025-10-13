@@ -5,16 +5,18 @@ configfile: pyproject.toml
 testpaths: tests
 plugins: asyncio-0.21.2, cov-4.1.0, anyio-3.7.1
 asyncio: mode=Mode.AUTO
-collected 13 items
+collected 17 items
 
-tests/ingestion/test_packet.py .                                         [  7%]
-tests/ingestion/test_packet_validation.py ..                             [ 23%]
-tests/ingestion/test_receiver.py .                                       [ 30%]
-tests/ingestion/test_receiver_async_and_ordering.py ....                 [ 61%]
-tests/ingestion/test_receiver_buffer.py .                                [ 69%]
-tests/processors/test_milestone_processor.py ..                          [ 84%]
-tests/processors/test_progress_and_metrics.py .                          [ 92%]
-tests/status/test_readiness.py .                                         [100%]
+tests/ingestion/test_packet.py .                                         [  5%]
+tests/ingestion/test_packet_validation.py ..                             [ 17%]
+tests/ingestion/test_receiver.py .                                       [ 23%]
+tests/ingestion/test_receiver_async_and_ordering.py ....                 [ 47%]
+tests/ingestion/test_receiver_buffer.py .                                [ 52%]
+tests/processors/test_failed_and_metrics_exclusion.py ..                 [ 64%]
+tests/processors/test_milestone_processor.py ..                          [ 76%]
+tests/processors/test_progress_and_metrics.py .                          [ 82%]
+tests/status/test_readiness.py .                                         [ 88%]
+tests/status/test_readiness_edges.py ..                                  [100%]
 
 ---------- coverage: platform linux, python 3.12.8-final-0 -----------
 Name                                Stmts   Miss Branch BrPart  Cover   Missing
@@ -23,11 +25,11 @@ api/server.py                          37     37      2      0     0%   1-71
 ingestion/packet.py                    19      0      2      0   100%
 ingestion/receiver.py                  44      4     10      2    89%   42-43, 52, 77
 main.py                                 2      2      0      0     0%   1-2
-processors/milestone_processor.py      42      5     14      4    80%   40, 45->56, 52-54, 59
-status/readiness.py                    48     10     12      3    72%   46-49, 58-59, 63-68
+processors/milestone_processor.py      42      2     14      4    89%   40, 45->56, 52->56, 59
+status/readiness.py                    48      2     12      1    95%   67-68
 -------------------------------------------------------------------------------
-TOTAL                                 192     58     40      9    68%
+TOTAL                                 192     47     40      7    76%
 Coverage HTML written to dir htmlcov
 
 
-============================== 13 passed in 0.36s ==============================
+============================== 17 passed in 0.38s ==============================
