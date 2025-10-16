@@ -38,3 +38,16 @@ class TestStatusAPI:
         assert "overall_progress" in result
         assert "ready_milestones" in result
         assert "pending_milestones" in result
+    
+    def test_submit_packet_invalid_data(self, client):
+        """Test packet submission with invalid data returns 400."""
+        response = client.post("/packets", json={
+            "packet_id": "",
+            "timestamp": datetime.now().isoformat(),
+            "source": "ground_station_1",
+            "milestone": "engine_chill",
+            "data": {"temperature": -180.5}
+        })
+        
+        assert response.status_code == 400
+        assert "Invalid packet data" in response.json()["detail"]

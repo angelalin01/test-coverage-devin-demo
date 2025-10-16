@@ -1,5 +1,6 @@
 import pytest
 from datetime import datetime
+from pydantic import ValidationError
 
 from ingestion.packet import TelemetryPacket
 
@@ -21,3 +22,16 @@ class TestTelemetryPacket:
         assert packet.source == "ground_station_1"
         assert packet.milestone == "engine_chill"
         assert packet.data["temperature"] == -180.5
+    
+    def test_invalid_milestone_raises_error(self):
+        """Test that invalid milestone names raise ValidationError."""
+        with pytest.raises(ValidationError) as exc_info:
+            TelemetryPacket(
+                packet_id="PKT-001",
+                timestamp=datetime.now(),
+                source="ground_station_1",
+                milestone="invalid_milestone_name",
+                data={"temperature": -180.5}
+            )
+        
+        assert "Invalid milestone" in str(exc_info.value)
