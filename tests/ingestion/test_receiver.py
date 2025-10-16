@@ -76,3 +76,50 @@ class TestTelemetryReceiver:
         assert stats['error_count'] == 0
         assert stats['buffer_size'] == 1
         assert stats['buffer_capacity'] == 10
+    
+    @pytest.mark.asyncio
+    async def test_receive_packet_async_success(self, receiver):
+        """Test async packet reception succeeds."""
+        packet = TelemetryPacket(
+            packet_id="PKT-001",
+            timestamp=datetime.now(),
+            source="ground_station_1",
+            milestone="engine_chill",
+            data={"temperature": -180.5}
+        )
+        
+        result = await receiver.receive_packet_async(packet)
+        assert result is True
+        assert receiver.packet_count == 1
+    
+    @pytest.mark.asyncio
+    async def test_receive_packet_async_retry_logic(self, receiver):
+        """Test async retry attempts up to 3 times as documented."""
+        invalid_packet = TelemetryPacket(
+            packet_id="",  # Empty packet_id fails validation
+            timestamp=datetime.now(),
+            source="ground_station_1",
+            milestone="engine_chill",
+            data={"temperature": -180.5}
+        )
+        
+        result = await receiver.receive_packet_async(invalid_packet)
+        assert result is False
+        assert receiver.error_count == 3
+    
+    @pytest.mark.asyncio
+    async def test_receive_packet_async_exception_handling(self, receiver):
+        """Test async exception handling emits error events."""
+        packet = TelemetryPacket(
+            packet_id="PKT-001",
+            timestamp=datetime.now(),
+            source="ground_station_1",
+            milestone="engine_chill",
+            data={"temperature": -180.5}
+        )
+        
+        receiver.packet_buffer = None  # This will cause an exception
+        
+        result = await receiver.receive_packet_async(packet)
+        assert result is False
+        assert receiver.error_count > 0

@@ -44,3 +44,50 @@ class TestMilestoneProcessor:
         status = processor.milestone_states["pressurization"]
         assert status.state == MilestoneState.COMPLETE
         assert status.progress_percent == 100.0
+    
+    def test_process_invalid_milestone(self, processor):
+        """Test processing packet with invalid milestone name."""
+        packet = TelemetryPacket(
+            packet_id="PKT-001",
+            timestamp=datetime.now(),
+            source="ground_station_1",
+            milestone="engine_chill",
+            data={"status": "complete"}
+        )
+        
+        processor.milestone_states.clear()
+        
+        result = processor.process_packet(packet)
+        assert result is False
+    
+    def test_process_failed_milestone(self, processor):
+        """Test processing failed milestone with error message."""
+        packet = TelemetryPacket(
+            packet_id="PKT-001",
+            timestamp=datetime.now(),
+            source="ground_station_1",
+            milestone="pressurization",
+            data={"status": "failed", "error": "Pressure loss detected"}
+        )
+        
+        processor.process_packet(packet)
+        status = processor.milestone_states["pressurization"]
+        
+        assert status.state == MilestoneState.FAILED
+        assert status.error_message == "Pressure loss detected"
+    
+    def test_process_progress_state_transition(self, processor):
+        """Test state transitions based on progress values."""
+        packet = TelemetryPacket(
+            packet_id="PKT-001",
+            timestamp=datetime.now(),
+            source="ground_station_1",
+            milestone="terminal_count",
+            data={"progress": 50.0}
+        )
+        
+        processor.process_packet(packet)
+        status = processor.milestone_states["terminal_count"]
+        
+        assert status.state == MilestoneState.IN_PROGRESS
+        assert status.progress_percent == 50.0
