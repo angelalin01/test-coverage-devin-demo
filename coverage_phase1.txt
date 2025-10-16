@@ -1,0 +1,164 @@
+============================= test session starts ==============================
+platform linux -- Python 3.12.8, pytest-7.4.4, pluggy-1.6.0 -- /home/ubuntu/.cache/pypoetry/virtualenvs/telemetry-status-service-1y822yDO-py3.12/bin/python
+cachedir: .pytest_cache
+rootdir: /home/ubuntu/repos/test-coverage-devin-demo
+configfile: pyproject.toml
+testpaths: tests
+plugins: asyncio-0.21.2, cov-4.1.0, anyio-3.7.1
+asyncio: mode=Mode.AUTO
+collecting ... collected 10 items
+
+tests/api/test_server.py::TestStatusAPI::test_submit_packet_success ERROR [ 10%]
+tests/api/test_server.py::TestStatusAPI::test_get_readiness_endpoint ERROR [ 20%]
+tests/ingestion/test_packet.py::TestTelemetryPacket::test_create_valid_packet PASSED [ 30%]
+tests/ingestion/test_receiver.py::TestTelemetryReceiver::test_receive_valid_packet PASSED [ 40%]
+tests/ingestion/test_receiver.py::TestTelemetryReceiver::test_receive_invalid_packet PASSED [ 50%]
+tests/ingestion/test_receiver.py::TestTelemetryReceiver::test_buffer_overflow PASSED [ 60%]
+tests/ingestion/test_receiver.py::TestTelemetryReceiver::test_get_stats PASSED [ 70%]
+tests/processors/test_milestone_processor.py::TestMilestoneProcessor::test_process_packet_updates_state PASSED [ 80%]
+tests/processors/test_milestone_processor.py::TestMilestoneProcessor::test_process_complete_milestone PASSED [ 90%]
+tests/status/test_readiness.py::TestReadinessComputer::test_ready_state PASSED [100%]
+
+==================================== ERRORS ====================================
+__________ ERROR at setup of TestStatusAPI.test_submit_packet_success __________
+
+self = <tests.api.test_server.TestStatusAPI object at 0x7fa0088576e0>
+
+    @pytest.fixture
+    def client(self):
+        """Create a FastAPI test client."""
+        app = create_app()
+>       return TestClient(app)
+
+tests/api/test_server.py:15: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = <starlette.testclient.TestClient object at 0x7fa0088a95e0>
+app = <fastapi.applications.FastAPI object at 0x7fa0088a6990>
+base_url = 'http://testserver', raise_server_exceptions = True, root_path = ''
+backend = 'asyncio', backend_options = None, cookies = None
+headers = {'user-agent': 'testclient'}
+
+    def __init__(
+        self,
+        app: ASGIApp,
+        base_url: str = "http://testserver",
+        raise_server_exceptions: bool = True,
+        root_path: str = "",
+        backend: str = "asyncio",
+        backend_options: typing.Optional[typing.Dict[str, typing.Any]] = None,
+        cookies: httpx._client.CookieTypes = None,
+        headers: typing.Dict[str, str] = None,
+    ) -> None:
+        self.async_backend = _AsyncBackend(
+            backend=backend, backend_options=backend_options or {}
+        )
+        if _is_asgi3(app):
+            app = typing.cast(ASGI3App, app)
+            asgi_app = app
+        else:
+            app = typing.cast(ASGI2App, app)  # type: ignore[assignment]
+            asgi_app = _WrapASGI2(app)  # type: ignore[arg-type]
+        self.app = asgi_app
+        self.app_state: typing.Dict[str, typing.Any] = {}
+        transport = _TestClientTransport(
+            self.app,
+            portal_factory=self._portal_factory,
+            raise_server_exceptions=raise_server_exceptions,
+            root_path=root_path,
+            app_state=self.app_state,
+        )
+        if headers is None:
+            headers = {}
+        headers.setdefault("user-agent", "testclient")
+>       super().__init__(
+            app=self.app,
+            base_url=base_url,
+            headers=headers,
+            transport=transport,
+            follow_redirects=True,
+            cookies=cookies,
+        )
+E       TypeError: Client.__init__() got an unexpected keyword argument 'app'
+
+../../.cache/pypoetry/virtualenvs/telemetry-status-service-1y822yDO-py3.12/lib/python3.12/site-packages/starlette/testclient.py:399: TypeError
+_________ ERROR at setup of TestStatusAPI.test_get_readiness_endpoint __________
+
+self = <tests.api.test_server.TestStatusAPI object at 0x7fa0088565d0>
+
+    @pytest.fixture
+    def client(self):
+        """Create a FastAPI test client."""
+        app = create_app()
+>       return TestClient(app)
+
+tests/api/test_server.py:15: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = <starlette.testclient.TestClient object at 0x7fa0088cd0a0>
+app = <fastapi.applications.FastAPI object at 0x7fa0088cc800>
+base_url = 'http://testserver', raise_server_exceptions = True, root_path = ''
+backend = 'asyncio', backend_options = None, cookies = None
+headers = {'user-agent': 'testclient'}
+
+    def __init__(
+        self,
+        app: ASGIApp,
+        base_url: str = "http://testserver",
+        raise_server_exceptions: bool = True,
+        root_path: str = "",
+        backend: str = "asyncio",
+        backend_options: typing.Optional[typing.Dict[str, typing.Any]] = None,
+        cookies: httpx._client.CookieTypes = None,
+        headers: typing.Dict[str, str] = None,
+    ) -> None:
+        self.async_backend = _AsyncBackend(
+            backend=backend, backend_options=backend_options or {}
+        )
+        if _is_asgi3(app):
+            app = typing.cast(ASGI3App, app)
+            asgi_app = app
+        else:
+            app = typing.cast(ASGI2App, app)  # type: ignore[assignment]
+            asgi_app = _WrapASGI2(app)  # type: ignore[arg-type]
+        self.app = asgi_app
+        self.app_state: typing.Dict[str, typing.Any] = {}
+        transport = _TestClientTransport(
+            self.app,
+            portal_factory=self._portal_factory,
+            raise_server_exceptions=raise_server_exceptions,
+            root_path=root_path,
+            app_state=self.app_state,
+        )
+        if headers is None:
+            headers = {}
+        headers.setdefault("user-agent", "testclient")
+>       super().__init__(
+            app=self.app,
+            base_url=base_url,
+            headers=headers,
+            transport=transport,
+            follow_redirects=True,
+            cookies=cookies,
+        )
+E       TypeError: Client.__init__() got an unexpected keyword argument 'app'
+
+../../.cache/pypoetry/virtualenvs/telemetry-status-service-1y822yDO-py3.12/lib/python3.12/site-packages/starlette/testclient.py:399: TypeError
+
+---------- coverage: platform linux, python 3.12.8-final-0 -----------
+Name                                Stmts   Miss  Cover   Missing
+-----------------------------------------------------------------
+api/server.py                          37      8    78%   31-46, 50, 65, 69
+ingestion/packet.py                    19      1    95%   21
+ingestion/receiver.py                  42     17    60%   13-16, 26-27, 53, 64-73
+main.py                                 2      2     0%   1-2
+processors/milestone_processor.py      42      7    83%   40, 52-54, 57-59
+status/readiness.py                    48     10    79%   46-49, 58-59, 63-68
+-----------------------------------------------------------------
+TOTAL                                 190     45    76%
+Coverage HTML written to dir htmlcov
+
+=========================== short test summary info ============================
+ERROR tests/api/test_server.py::TestStatusAPI::test_submit_packet_success - T...
+ERROR tests/api/test_server.py::TestStatusAPI::test_get_readiness_endpoint - ...
+========================= 8 passed, 2 errors in 1.93s ==========================
