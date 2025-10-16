@@ -44,3 +44,35 @@ class TestMilestoneProcessor:
         status = processor.milestone_states["pressurization"]
         assert status.state == MilestoneState.COMPLETE
         assert status.progress_percent == 100.0
+    
+    def test_process_failed_milestone(self, processor):
+        """Test processing a failed milestone with error message."""
+        packet = TelemetryPacket(
+            packet_id="PKT-004",
+            timestamp=datetime.now(),
+            source="ground_station_1",
+            milestone="fuel_load",
+            data={"status": "failed", "error": "Fuel leak detected"}
+        )
+        
+        processor.process_packet(packet)
+        
+        status = processor.milestone_states["fuel_load"]
+        assert status.state == MilestoneState.FAILED
+        assert status.error_message == "Fuel leak detected"
+    
+    def test_process_progress_update(self, processor):
+        """Test processing progress updates triggers state transition."""
+        packet = TelemetryPacket(
+            packet_id="PKT-005",
+            timestamp=datetime.now(),
+            source="ground_station_1",
+            milestone="terminal_count",
+            data={"progress": 50.0}
+        )
+        
+        processor.process_packet(packet)
+        
+        status = processor.milestone_states["terminal_count"]
+        assert status.state == MilestoneState.IN_PROGRESS
+        assert status.progress_percent == 50.0

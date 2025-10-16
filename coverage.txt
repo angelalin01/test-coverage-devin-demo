@@ -6,31 +6,43 @@ configfile: pyproject.toml
 testpaths: tests
 plugins: asyncio-0.21.2, cov-4.1.0, anyio-3.7.1
 asyncio: mode=Mode.AUTO
-collecting ... collected 10 items
+collecting ... collected 22 items
 
-tests/ingestion/test_packet.py::TestTelemetryPacket::test_create_valid_packet PASSED [ 10%]
-tests/ingestion/test_receiver.py::test_receive_packet_async_success PASSED [ 20%]
-tests/ingestion/test_receiver.py::TestTelemetryReceiver::test_receive_valid_packet PASSED [ 30%]
-tests/ingestion/test_receiver.py::TestTelemetryReceiver::test_receive_invalid_packet PASSED [ 40%]
-tests/ingestion/test_receiver.py::TestTelemetryReceiver::test_buffer_eviction_when_full PASSED [ 50%]
-tests/ingestion/test_receiver.py::TestTelemetryReceiver::test_sequence_number_tracking PASSED [ 60%]
-tests/ingestion/test_receiver.py::TestTelemetryReceiver::test_get_stats PASSED [ 70%]
-tests/processors/test_milestone_processor.py::TestMilestoneProcessor::test_process_packet_updates_state PASSED [ 80%]
-tests/processors/test_milestone_processor.py::TestMilestoneProcessor::test_process_complete_milestone PASSED [ 90%]
-tests/status/test_readiness.py::TestReadinessComputer::test_ready_state PASSED [100%]
+tests/ingestion/test_packet.py::TestTelemetryPacket::test_create_valid_packet PASSED [  4%]
+tests/ingestion/test_receiver.py::test_receive_packet_async_success PASSED [  9%]
+tests/ingestion/test_receiver.py::test_receive_packet_async_retry_attempts PASSED [ 13%]
+tests/ingestion/test_receiver.py::test_receive_packet_async_exception_handling PASSED [ 18%]
+tests/ingestion/test_receiver.py::test_validate_sequence_gap_within_threshold PASSED [ 22%]
+tests/ingestion/test_receiver.py::test_validate_sequence_gap_exceeds_threshold PASSED [ 27%]
+tests/ingestion/test_receiver.py::test_validate_sequence_gap_backwards PASSED [ 31%]
+tests/ingestion/test_receiver.py::test_reorder_packets_with_sequence_numbers PASSED [ 36%]
+tests/ingestion/test_receiver.py::test_reorder_packets_drops_unsequenced PASSED [ 40%]
+tests/ingestion/test_receiver.py::TestTelemetryReceiver::test_receive_valid_packet PASSED [ 45%]
+tests/ingestion/test_receiver.py::TestTelemetryReceiver::test_receive_invalid_packet PASSED [ 50%]
+tests/ingestion/test_receiver.py::TestTelemetryReceiver::test_buffer_eviction_when_full PASSED [ 54%]
+tests/ingestion/test_receiver.py::TestTelemetryReceiver::test_sequence_number_tracking PASSED [ 59%]
+tests/ingestion/test_receiver.py::TestTelemetryReceiver::test_get_stats PASSED [ 63%]
+tests/processors/test_milestone_processor.py::TestMilestoneProcessor::test_process_packet_updates_state PASSED [ 68%]
+tests/processors/test_milestone_processor.py::TestMilestoneProcessor::test_process_complete_milestone PASSED [ 72%]
+tests/processors/test_milestone_processor.py::TestMilestoneProcessor::test_process_failed_milestone PASSED [ 77%]
+tests/processors/test_milestone_processor.py::TestMilestoneProcessor::test_process_progress_update PASSED [ 81%]
+tests/status/test_readiness.py::TestReadinessComputer::test_ready_state PASSED [ 86%]
+tests/status/test_readiness.py::TestReadinessComputer::test_scrubbed_state_critical_failure PASSED [ 90%]
+tests/status/test_readiness.py::TestReadinessComputer::test_partial_state_critical_ready PASSED [ 95%]
+tests/status/test_readiness.py::TestReadinessComputer::test_not_ready_state PASSED [100%]
 
 ---------- coverage: platform linux, python 3.12.8-final-0 -----------
 Name                                Stmts   Miss  Cover   Missing
 -----------------------------------------------------------------
 api/server.py                          37     37     0%   1-71
 ingestion/packet.py                    19      1    95%   21
-ingestion/receiver.py                  42     11    74%   13-16, 26-27, 68-70, 72-73
+ingestion/receiver.py                  42      0   100%
 main.py                                 2      2     0%   1-2
-processors/milestone_processor.py      42      7    83%   40, 52-54, 57-59
-status/readiness.py                    48     10    79%   46-49, 58-59, 63-68
+processors/milestone_processor.py      42      1    98%   40
+status/readiness.py                    48      0   100%
 -----------------------------------------------------------------
-TOTAL                                 190     68    64%
+TOTAL                                 190     41    78%
 Coverage HTML written to dir htmlcov
 
 
-============================== 10 passed in 0.33s ==============================
+============================== 22 passed in 1.88s ==============================

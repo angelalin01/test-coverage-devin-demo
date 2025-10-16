@@ -1,7 +1,7 @@
 import pytest
 from datetime import datetime
 
-from ingestion.receiver import TelemetryReceiver
+from ingestion.receiver import TelemetryReceiver, _validate_sequence_gap, _reorder_packets
 from ingestion.packet import TelemetryPacket
 
 
@@ -20,6 +20,104 @@ async def test_receive_packet_async_success():
     result = await receiver.receive_packet_async(packet)
     assert result is True
     assert receiver.packet_count == 1
+
+
+@pytest.mark.asyncio
+async def test_receive_packet_async_retry_attempts():
+    """Test async retry logic attempts 3 times total for invalid packets."""
+    receiver = TelemetryReceiver(buffer_size=10)
+    
+    packet = TelemetryPacket(
+        packet_id="PKT-ASYNC-002",
+        timestamp=datetime.now(),
+        source="ground_station_1",
+        milestone="engine_chill",
+        data={}
+    )
+    
+    result = await receiver.receive_packet_async(packet)
+    assert result is False
+    assert receiver.error_count == 3
+
+
+@pytest.mark.asyncio
+async def test_receive_packet_async_exception_handling():
+    """Test async exception handling returns False without crashing."""
+    
+    class FailingReceiver(TelemetryReceiver):
+        def receive_packet(self, packet):
+            raise RuntimeError("Simulated internal error")
+    
+    receiver = FailingReceiver(buffer_size=10)
+    packet = TelemetryPacket(
+        packet_id="PKT-ASYNC-003",
+        timestamp=datetime.now(),
+        source="ground_station_1",
+        milestone="engine_chill",
+        data={"temp": 100}
+    )
+    
+    result = await receiver.receive_packet_async(packet)
+    assert result is False
+
+
+def test_validate_sequence_gap_within_threshold():
+    """Test sequence gap validation accepts gaps <= 3."""
+    assert _validate_sequence_gap(current_seq=5, last_seq=2, max_gap=3) is True
+    assert _validate_sequence_gap(current_seq=10, last_seq=7, max_gap=3) is True
+
+
+def test_validate_sequence_gap_exceeds_threshold():
+    """Test sequence gap validation rejects gaps > 3."""
+    assert _validate_sequence_gap(current_seq=10, last_seq=5, max_gap=3) is False
+
+
+def test_validate_sequence_gap_backwards():
+    """Test sequence gap validation rejects backwards sequences."""
+    assert _validate_sequence_gap(current_seq=5, last_seq=10, max_gap=3) is False
+    assert _validate_sequence_gap(current_seq=5, last_seq=5, max_gap=3) is False
+
+
+def test_reorder_packets_with_sequence_numbers():
+    """Test packet reordering sorts by sequence number."""
+    packets = [
+        TelemetryPacket(
+            packet_id="PKT-003", timestamp=datetime.now(), source="gs1",
+            milestone="engine_chill", data={"x": 3}, sequence_number=3
+        ),
+        TelemetryPacket(
+            packet_id="PKT-001", timestamp=datetime.now(), source="gs1",
+            milestone="engine_chill", data={"x": 1}, sequence_number=1
+        ),
+        TelemetryPacket(
+            packet_id="PKT-002", timestamp=datetime.now(), source="gs1",
+            milestone="engine_chill", data={"x": 2}, sequence_number=2
+        ),
+    ]
+    
+    reordered = _reorder_packets(packets)
+    assert len(reordered) == 3
+    assert reordered[0].sequence_number == 1
+    assert reordered[1].sequence_number == 2
+    assert reordered[2].sequence_number == 3
+
+
+def test_reorder_packets_drops_unsequenced():
+    """Test packet reordering drops packets without sequence numbers."""
+    packets = [
+        TelemetryPacket(
+            packet_id="PKT-001", timestamp=datetime.now(), source="gs1",
+            milestone="engine_chill", data={"x": 1}, sequence_number=1
+        ),
+        TelemetryPacket(
+            packet_id="PKT-NO-SEQ", timestamp=datetime.now(), source="gs1",
+            milestone="engine_chill", data={"x": 0}
+        ),
+    ]
+    
+    reordered = _reorder_packets(packets)
+    assert len(reordered) == 1
+    assert reordered[0].sequence_number == 1
 
 
 class TestTelemetryReceiver:
