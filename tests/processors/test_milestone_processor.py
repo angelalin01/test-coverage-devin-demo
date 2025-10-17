@@ -54,3 +54,35 @@ class TestMilestoneProcessor:
         assert "engine_chill" in all_statuses
         assert "fuel_load" in all_statuses
         assert all_statuses["engine_chill"].state == MilestoneState.NOT_STARTED
+    
+    def test_process_failed_milestone_with_error(self, processor):
+        """Test processing failed milestone stores error message."""
+        packet = TelemetryPacket(
+            packet_id="PKT-FAIL",
+            timestamp=datetime.now(),
+            source="ground_station_1",
+            milestone="engine_chill",
+            data={"status": "failed", "error": "Temperature sensor malfunction"}
+        )
+        
+        processor.process_packet(packet)
+        
+        status = processor.milestone_states["engine_chill"]
+        assert status.state == MilestoneState.FAILED
+        assert status.error_message == "Temperature sensor malfunction"
+    
+    def test_process_progress_only_update(self, processor):
+        """Test progress-only update transitions NOT_STARTED to IN_PROGRESS."""
+        packet = TelemetryPacket(
+            packet_id="PKT-PROG",
+            timestamp=datetime.now(),
+            source="ground_station_1",
+            milestone="fuel_load",
+            data={"progress": 25.5}
+        )
+        
+        processor.process_packet(packet)
+        
+        status = processor.milestone_states["fuel_load"]
+        assert status.state == MilestoneState.IN_PROGRESS
+        assert status.progress_percent == 25.5

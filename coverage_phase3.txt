@@ -1,0 +1,82 @@
+============================= test session starts ==============================
+platform linux -- Python 3.12.8, pytest-7.4.4, pluggy-1.6.0 -- /home/ubuntu/.cache/pypoetry/virtualenvs/telemetry-status-service-1y822yDO-py3.12/bin/python
+cachedir: .pytest_cache
+rootdir: /home/ubuntu/repos/test-coverage-devin-demo
+configfile: pyproject.toml
+testpaths: tests
+plugins: asyncio-0.21.2, cov-4.1.0, anyio-3.7.1
+asyncio: mode=Mode.AUTO
+collecting ... collected 25 items
+
+tests/api/test_server.py::TestStatusAPI::test_submit_packet_success PASSED [  4%]
+tests/api/test_server.py::TestStatusAPI::test_submit_packet_empty_packet_id PASSED [  8%]
+tests/api/test_server.py::TestStatusAPI::test_get_readiness_initial_state PASSED [ 12%]
+tests/api/test_server.py::TestStatusAPI::test_get_readiness_after_packet_submission PASSED [ 16%]
+tests/ingestion/test_packet.py::TestTelemetryPacket::test_create_valid_packet PASSED [ 20%]
+tests/ingestion/test_receiver.py::TestTelemetryReceiver::test_receive_valid_packet PASSED [ 24%]
+tests/ingestion/test_receiver.py::TestTelemetryReceiver::test_receive_invalid_packet_increments_error_count PASSED [ 28%]
+tests/ingestion/test_receiver.py::TestTelemetryReceiver::test_buffer_overflow_evicts_oldest PASSED [ 32%]
+tests/ingestion/test_receiver.py::TestTelemetryReceiver::test_sequence_number_tracking PASSED [ 36%]
+tests/ingestion/test_receiver.py::TestTelemetryReceiver::test_get_stats PASSED [ 40%]
+tests/ingestion/test_receiver.py::TestTelemetryReceiverAsync::test_async_retries_up_to_three PASSED [ 44%]
+tests/ingestion/test_receiver.py::TestTelemetryReceiverAsync::test_async_exception_emits_error_event PASSED [ 48%]
+tests/ingestion/test_receiver.py::TestTelemetryReceiverAsync::test_reorder_preserves_unsequenced_packets PASSED [ 52%]
+tests/ingestion/test_receiver.py::TestTelemetryReceiverAsync::test_validate_sequence_gap_within_threshold PASSED [ 56%]
+tests/ingestion/test_receiver.py::TestTelemetryReceiverAsync::test_validate_sequence_gap_exceeds_threshold PASSED [ 60%]
+tests/processors/test_milestone_processor.py::TestMilestoneProcessor::test_process_packet_updates_state PASSED [ 64%]
+tests/processors/test_milestone_processor.py::TestMilestoneProcessor::test_process_complete_milestone PASSED [ 68%]
+tests/processors/test_milestone_processor.py::TestMilestoneProcessor::test_get_all_statuses PASSED [ 72%]
+tests/processors/test_milestone_processor.py::TestMilestoneProcessor::test_process_packet_invalid_milestone FAILED [ 76%]
+tests/processors/test_milestone_processor.py::TestMilestoneProcessor::test_process_failed_milestone_with_error PASSED [ 80%]
+tests/processors/test_milestone_processor.py::TestMilestoneProcessor::test_process_progress_only_update PASSED [ 84%]
+tests/status/test_readiness.py::TestReadinessComputer::test_ready_state PASSED [ 88%]
+tests/status/test_readiness.py::TestReadinessComputer::test_scrubbed_state_critical_failure PASSED [ 92%]
+tests/status/test_readiness.py::TestReadinessComputer::test_partial_readiness_critical_complete PASSED [ 96%]
+tests/status/test_readiness.py::TestReadinessComputer::test_not_ready_state PASSED [100%]
+
+=================================== FAILURES ===================================
+_________ TestMilestoneProcessor.test_process_packet_invalid_milestone _________
+
+self = <tests.processors.test_milestone_processor.TestMilestoneProcessor object at 0x7f046fcaf680>
+processor = <processors.milestone_processor.MilestoneProcessor object at 0x7f046f1feb70>
+
+    def test_process_packet_invalid_milestone(self, processor):
+        """Test processing packet with invalid milestone returns False."""
+>       packet = TelemetryPacket(
+            packet_id="PKT-BAD",
+            timestamp=datetime.now(),
+            source="ground_station_1",
+            milestone="invalid_milestone_name",
+            data={"status": "in_progress"}
+        )
+E       pydantic_core._pydantic_core.ValidationError: 1 validation error for TelemetryPacket
+E       milestone
+E         Value error, Invalid milestone: invalid_milestone_name [type=value_error, input_value='invalid_milestone_name', input_type=str]
+E           For further information visit https://errors.pydantic.dev/2.12/v/value_error
+
+tests/processors/test_milestone_processor.py:60: ValidationError
+=============================== warnings summary ===============================
+tests/api/test_server.py::TestStatusAPI::test_submit_packet_success
+tests/api/test_server.py::TestStatusAPI::test_submit_packet_empty_packet_id
+tests/api/test_server.py::TestStatusAPI::test_get_readiness_initial_state
+tests/api/test_server.py::TestStatusAPI::test_get_readiness_after_packet_submission
+  /home/ubuntu/.cache/pypoetry/virtualenvs/telemetry-status-service-1y822yDO-py3.12/lib/python3.12/site-packages/httpx/_client.py:690: DeprecationWarning: The 'app' shortcut is now deprecated. Use the explicit style 'transport=WSGITransport(app=...)' instead.
+    warnings.warn(message, DeprecationWarning)
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+
+---------- coverage: platform linux, python 3.12.8-final-0 -----------
+Name                                Stmts   Miss  Cover   Missing
+-----------------------------------------------------------------
+api/server.py                          37      0   100%
+ingestion/packet.py                    19      0   100%
+ingestion/receiver.py                  44      1    98%   14
+processors/milestone_processor.py      42      1    98%   40
+status/readiness.py                    48      0   100%
+-----------------------------------------------------------------
+TOTAL                                 190      2    99%
+Coverage HTML written to dir htmlcov
+
+=========================== short test summary info ============================
+FAILED tests/processors/test_milestone_processor.py::TestMilestoneProcessor::test_process_packet_invalid_milestone
+=================== 1 failed, 24 passed, 4 warnings in 5.08s ===================
