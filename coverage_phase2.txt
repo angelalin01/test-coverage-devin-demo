@@ -17,14 +17,62 @@ tests/ingestion/test_receiver.py::TestTelemetryReceiver::test_get_stats PASSED [
 tests/ingestion/test_receiver.py::TestTelemetryReceiver::test_sequence_number_tracking PASSED [ 41%]
 tests/ingestion/test_receiver.py::TestTelemetryReceiver::test_invalid_packet_increments_error_count PASSED [ 47%]
 tests/ingestion/test_receiver.py::TestTelemetryReceiver::test_retry_attempts_up_to_3_times PASSED [ 52%]
-tests/ingestion/test_receiver.py::TestTelemetryReceiver::test_retry_stops_after_max_attempts PASSED [ 58%]
+tests/ingestion/test_receiver.py::TestTelemetryReceiver::test_retry_stops_after_max_attempts FAILED [ 58%]
 tests/ingestion/test_receiver.py::TestTelemetryReceiver::test_async_exception_increments_error_count PASSED [ 64%]
-tests/ingestion/test_receiver.py::TestTelemetryReceiver::test_sequence_gap_validation PASSED [ 70%]
+tests/ingestion/test_receiver.py::TestTelemetryReceiver::test_sequence_gap_validation FAILED [ 70%]
 tests/ingestion/test_receiver.py::TestTelemetryReceiver::test_reorder_packets_preserves_unsequenced PASSED [ 76%]
 tests/processors/test_milestone_processor.py::TestMilestoneProcessor::test_process_packet_updates_state PASSED [ 82%]
 tests/processors/test_milestone_processor.py::TestMilestoneProcessor::test_process_complete_milestone PASSED [ 88%]
 tests/processors/test_milestone_processor.py::TestMilestoneProcessor::test_process_unknown_milestone PASSED [ 94%]
 tests/status/test_readiness.py::TestReadinessComputer::test_ready_state PASSED [100%]
+
+=================================== FAILURES ===================================
+__________ TestTelemetryReceiver.test_retry_stops_after_max_attempts ___________
+
+self = <tests.ingestion.test_receiver.TestTelemetryReceiver object at 0x7f84f28d9cd0>
+receiver = <ingestion.receiver.TelemetryReceiver object at 0x7f84f2924560>
+
+    @pytest.mark.asyncio
+    async def test_retry_stops_after_max_attempts(self, receiver):
+        """Test that retry stops after maximum attempts (should be 3, not 2)."""
+        from unittest.mock import patch
+    
+        attempt_count = 0
+    
+        def mock_receive_packet(packet):
+            nonlocal attempt_count
+            attempt_count += 1
+            return False
+    
+        packet = TelemetryPacket(
+            packet_id="PKT-001",
+            timestamp=datetime.now(),
+            source="ground_station_1",
+            milestone="engine_chill",
+            data={"temperature": -180.5}
+        )
+    
+        with patch.object(receiver, 'receive_packet', side_effect=mock_receive_packet):
+            result = await receiver.receive_packet_async(packet)
+            assert result is False
+>           assert attempt_count == 3
+E           assert 4 == 3
+
+tests/ingestion/test_receiver.py:142: AssertionError
+______________ TestTelemetryReceiver.test_sequence_gap_validation ______________
+
+self = <tests.ingestion.test_receiver.TestTelemetryReceiver object at 0x7f84f28da570>
+receiver = <ingestion.receiver.TelemetryReceiver object at 0x7f84f27d5070>
+
+    def test_sequence_gap_validation(self, receiver):
+        """Test that sequence gaps > 3 are detected and rejected."""
+        from ingestion.receiver import _validate_sequence_gap
+    
+>       assert _validate_sequence_gap(4, 1, max_gap=3) is False
+E       assert True is False
+E        +  where True = <function _validate_sequence_gap at 0x7f84f28ce520>(4, 1, max_gap=3)
+
+tests/ingestion/test_receiver.py:166: AssertionError
 
 ---------- coverage: platform linux, python 3.12.8-final-0 -----------
 Name                                Stmts   Miss  Cover   Missing
@@ -39,5 +87,7 @@ status/readiness.py                    48     10    79%   46-49, 58-59, 63-68
 TOTAL                                 192     56    71%
 Coverage HTML written to dir htmlcov
 
-
-============================== 17 passed in 5.38s ==============================
+=========================== short test summary info ============================
+FAILED tests/ingestion/test_receiver.py::TestTelemetryReceiver::test_retry_stops_after_max_attempts
+FAILED tests/ingestion/test_receiver.py::TestTelemetryReceiver::test_sequence_gap_validation
+========================= 2 failed, 15 passed in 5.41s =========================
