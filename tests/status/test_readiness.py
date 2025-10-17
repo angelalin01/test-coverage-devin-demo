@@ -74,3 +74,17 @@ class TestReadinessComputer:
         assert len(readiness.ready_milestones) == 2
         assert len(readiness.pending_milestones) == 4
         assert "not ready" in readiness.message.lower()
+    
+    def test_scrubbed_state_on_critical_milestone_failure(self, computer, processor):
+        """Test SCRUBBED state when a critical milestone fails."""
+        packet = create_test_packet(
+            packet_id="PKT-CRITICAL-FAIL",
+            milestone="fuel_load",
+            data={"status": "failed", "error": "Fuel leak detected"}
+        )
+        processor.process_packet(packet)
+        
+        readiness = computer.compute_readiness()
+        assert readiness.level == ReadinessLevel.SCRUBBED
+        assert "fuel_load" in readiness.failed_milestones
+        assert "scrubbed" in readiness.message.lower()

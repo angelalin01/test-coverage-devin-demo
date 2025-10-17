@@ -100,3 +100,24 @@ class TestTelemetryReceiver:
         assert reordered[0].packet_id == "PKT-003"
         assert reordered[1].packet_id == "PKT-001"
         assert reordered[2].packet_id == "PKT-002"
+    
+    def test_buffer_overflow_evicts_oldest_packet(self, receiver):
+        """Test buffer overflow removes oldest packet when at capacity."""
+        for i in range(11):
+            packet = create_test_packet(packet_id=f"PKT-{i:03d}")
+            receiver.receive_packet(packet)
+        
+        assert len(receiver.packet_buffer) == 10
+        assert receiver.packet_buffer[0].packet_id == "PKT-001"
+        assert receiver.packet_buffer[-1].packet_id == "PKT-010"
+    
+    def test_sequence_tracking_updates_last_sequence(self, receiver):
+        """Test sequence_number tracking updates last_sequence."""
+        packet1 = create_test_packet(packet_id="PKT-001", sequence_number=100)
+        packet2 = create_test_packet(packet_id="PKT-002", sequence_number=101)
+        
+        receiver.receive_packet(packet1)
+        assert receiver.last_sequence == 100
+        
+        receiver.receive_packet(packet2)
+        assert receiver.last_sequence == 101
