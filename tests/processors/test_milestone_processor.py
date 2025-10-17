@@ -44,3 +44,17 @@ class TestMilestoneProcessor:
         status = processor.milestone_states["pressurization"]
         assert status.state == MilestoneState.COMPLETE
         assert status.progress_percent == 100.0
+    
+    def test_process_unknown_milestone(self, processor):
+        """Test processing unknown milestone returns False."""
+        packet = TelemetryPacket(
+            packet_id="PKT-004",
+            timestamp=datetime.now(),
+            source="ground_station_1",
+            milestone="engine_chill",
+            data={"status": "in_progress"}
+        )
+        packet.milestone = "unknown_milestone"
+        
+        result = processor.process_packet(packet)
+        assert result is False
