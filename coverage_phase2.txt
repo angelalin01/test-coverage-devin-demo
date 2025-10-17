@@ -1,0 +1,53 @@
+============================= test session starts ==============================
+platform linux -- Python 3.12.8, pytest-7.4.4, pluggy-1.6.0 -- /home/ubuntu/.cache/pypoetry/virtualenvs/telemetry-status-service-1y822yDO-py3.12/bin/python
+cachedir: .pytest_cache
+rootdir: /home/ubuntu/repos/test-coverage-devin-demo
+configfile: pyproject.toml
+testpaths: tests
+plugins: asyncio-0.21.2, cov-4.1.0, anyio-3.7.1
+asyncio: mode=Mode.AUTO
+collecting ... collected 19 items
+
+tests/api/test_server.py::TestStatusAPI::test_submit_packet_success PASSED [  5%]
+tests/api/test_server.py::TestStatusAPI::test_submit_packet_empty_packet_id PASSED [ 10%]
+tests/api/test_server.py::TestStatusAPI::test_get_readiness_initial_state PASSED [ 15%]
+tests/api/test_server.py::TestStatusAPI::test_get_readiness_after_packet_submission PASSED [ 21%]
+tests/ingestion/test_packet.py::TestTelemetryPacket::test_create_valid_packet PASSED [ 26%]
+tests/ingestion/test_receiver.py::TestTelemetryReceiver::test_receive_valid_packet PASSED [ 31%]
+tests/ingestion/test_receiver.py::TestTelemetryReceiver::test_receive_invalid_packet_increments_error_count PASSED [ 36%]
+tests/ingestion/test_receiver.py::TestTelemetryReceiver::test_buffer_overflow_evicts_oldest PASSED [ 42%]
+tests/ingestion/test_receiver.py::TestTelemetryReceiver::test_sequence_number_tracking PASSED [ 47%]
+tests/ingestion/test_receiver.py::TestTelemetryReceiver::test_get_stats PASSED [ 52%]
+tests/ingestion/test_receiver.py::TestTelemetryReceiverAsync::test_async_retries_up_to_three PASSED [ 57%]
+tests/ingestion/test_receiver.py::TestTelemetryReceiverAsync::test_async_exception_emits_error_event PASSED [ 63%]
+tests/ingestion/test_receiver.py::TestTelemetryReceiverAsync::test_reorder_preserves_unsequenced_packets PASSED [ 68%]
+tests/ingestion/test_receiver.py::TestTelemetryReceiverAsync::test_validate_sequence_gap_within_threshold PASSED [ 73%]
+tests/ingestion/test_receiver.py::TestTelemetryReceiverAsync::test_validate_sequence_gap_exceeds_threshold PASSED [ 78%]
+tests/processors/test_milestone_processor.py::TestMilestoneProcessor::test_process_packet_updates_state PASSED [ 84%]
+tests/processors/test_milestone_processor.py::TestMilestoneProcessor::test_process_complete_milestone PASSED [ 89%]
+tests/processors/test_milestone_processor.py::TestMilestoneProcessor::test_get_all_statuses PASSED [ 94%]
+tests/status/test_readiness.py::TestReadinessComputer::test_ready_state PASSED [100%]
+
+=============================== warnings summary ===============================
+tests/api/test_server.py::TestStatusAPI::test_submit_packet_success
+tests/api/test_server.py::TestStatusAPI::test_submit_packet_empty_packet_id
+tests/api/test_server.py::TestStatusAPI::test_get_readiness_initial_state
+tests/api/test_server.py::TestStatusAPI::test_get_readiness_after_packet_submission
+  /home/ubuntu/.cache/pypoetry/virtualenvs/telemetry-status-service-1y822yDO-py3.12/lib/python3.12/site-packages/httpx/_client.py:690: DeprecationWarning: The 'app' shortcut is now deprecated. Use the explicit style 'transport=WSGITransport(app=...)' instead.
+    warnings.warn(message, DeprecationWarning)
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+
+---------- coverage: platform linux, python 3.12.8-final-0 -----------
+Name                                Stmts   Miss  Cover   Missing
+-----------------------------------------------------------------
+api/server.py                          37      0   100%
+ingestion/packet.py                    19      1    95%   21
+ingestion/receiver.py                  44      1    98%   14
+processors/milestone_processor.py      42      7    83%   40, 52-54, 57-59
+status/readiness.py                    48      5    90%   47, 58-59, 64-65
+-----------------------------------------------------------------
+TOTAL                                 190     14    93%
+Coverage HTML written to dir htmlcov
+
+======================== 19 passed, 4 warnings in 5.15s ========================
