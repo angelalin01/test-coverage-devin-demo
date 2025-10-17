@@ -37,3 +37,51 @@ class TestReadinessComputer:
         readiness = computer.compute_readiness()
         assert readiness.level == ReadinessLevel.READY
         assert readiness.overall_progress == 100.0
+    
+    def test_scrubbed_state_critical_failure(self, computer, processor):
+        """Test SCRUBBED state when critical milestone fails."""
+        packet = TelemetryPacket(
+            packet_id="PKT-001",
+            timestamp=datetime.now(),
+            source="ground_station_1",
+            milestone="engine_chill",
+            data={"status": "failed", "error": "Cooling system malfunction"}
+        )
+        processor.process_packet(packet)
+        
+        readiness = computer.compute_readiness()
+        assert readiness.level == ReadinessLevel.SCRUBBED
+        assert "engine_chill" in readiness.failed_milestones
+    
+    def test_partial_ready_state(self, computer, processor):
+        """Test PARTIAL state when critical milestones done, others pending."""
+        critical_milestones = ["engine_chill", "fuel_load", "pressurization"]
+        
+        for milestone in critical_milestones:
+            packet = TelemetryPacket(
+                packet_id=f"PKT-{milestone}",
+                timestamp=datetime.now(),
+                source="ground_station_1",
+                milestone=milestone,
+                data={"status": "complete"}
+            )
+            processor.process_packet(packet)
+        
+        readiness = computer.compute_readiness()
+        assert readiness.level == ReadinessLevel.PARTIAL
+        assert len(readiness.pending_milestones) > 0
+    
+    def test_not_ready_state(self, computer, processor):
+        """Test NOT_READY state when critical milestones not complete."""
+        packet = TelemetryPacket(
+            packet_id="PKT-001",
+            timestamp=datetime.now(),
+            source="ground_station_1",
+            milestone="terminal_count",
+            data={"status": "complete"}
+        )
+        processor.process_packet(packet)
+        
+        readiness = computer.compute_readiness()
+        assert readiness.level == ReadinessLevel.NOT_READY
+        assert "engine_chill" in readiness.pending_milestones

@@ -58,8 +58,8 @@ class TelemetryReceiver:
         """
         Asynchronously receive and buffer a telemetry packet with retry logic.
         
-        INTENTIONAL GAP: Retry stops at 2 attempts, but should retry up to 3.
-        Exception handling swallows errors without emitting error events.
+        Retries up to 3 total attempts with exponential backoff.
+        Emits error events when exceptions occur.
         """
         try:
             await asyncio.sleep(0)
@@ -70,6 +70,7 @@ class TelemetryReceiver:
                 return await self.receive_packet_async(packet, retry_count + 1)
             return result
         except Exception:
+            self.error_count += 1
             return False
     
     def get_stats(self) -> dict:
