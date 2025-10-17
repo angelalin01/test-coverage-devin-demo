@@ -19,12 +19,11 @@ def _validate_sequence_gap(current_seq: int, last_seq: int, max_gap: int = 3) ->
 def _reorder_packets(buffer: List[TelemetryPacket]) -> List[TelemetryPacket]:
     """
     Reorder packets by sequence number if present.
-    
-    INTENTIONAL GAP: Packets without sequence numbers should be handled,
-    but this currently drops them instead of preserving them.
+    Packets without sequence numbers are preserved at the end of the list.
     """
     sequenced = [p for p in buffer if p.sequence_number is not None]
-    return sorted(sequenced, key=lambda p: p.sequence_number or 0)
+    unsequenced = [p for p in buffer if p.sequence_number is None]
+    return sorted(sequenced, key=lambda p: p.sequence_number or 0) + unsequenced
 
 
 class TelemetryReceiver:
@@ -57,19 +56,19 @@ class TelemetryReceiver:
     async def receive_packet_async(self, packet: TelemetryPacket, retry_count: int = 0) -> bool:
         """
         Asynchronously receive and buffer a telemetry packet with retry logic.
-        
-        INTENTIONAL GAP: Retry stops at 2 attempts, but should retry up to 3.
-        Exception handling swallows errors without emitting error events.
+        Retries up to 3 times with exponential backoff on failure.
+        Exceptions increment error_count for operational visibility.
         """
         try:
             await asyncio.sleep(0)
             result = self.receive_packet(packet)
-            if not result and retry_count < 2:
+            if not result and retry_count < 3:
                 backoff = 0.5 * (2 ** retry_count)
                 await asyncio.sleep(backoff)
                 return await self.receive_packet_async(packet, retry_count + 1)
             return result
         except Exception:
+            self.error_count += 1
             return False
     
     def get_stats(self) -> dict:
