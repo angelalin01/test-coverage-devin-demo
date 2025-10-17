@@ -28,6 +28,16 @@ tests/processors/test_milestone_processor.py::TestMilestoneProcessor::test_proce
 tests/processors/test_milestone_processor.py::TestMilestoneProcessor::test_get_all_statuses PASSED [ 94%]
 tests/status/test_readiness.py::TestReadinessComputer::test_ready_state PASSED [100%]
 
+=============================== warnings summary ===============================
+tests/api/test_server.py::TestStatusAPI::test_submit_packet_success
+tests/api/test_server.py::TestStatusAPI::test_submit_packet_empty_packet_id
+tests/api/test_server.py::TestStatusAPI::test_get_readiness_initial_state
+tests/api/test_server.py::TestStatusAPI::test_get_readiness_after_packet_submission
+  /home/ubuntu/.cache/pypoetry/virtualenvs/telemetry-status-service-1y822yDO-py3.12/lib/python3.12/site-packages/httpx/_client.py:690: DeprecationWarning: The 'app' shortcut is now deprecated. Use the explicit style 'transport=WSGITransport(app=...)' instead.
+    warnings.warn(message, DeprecationWarning)
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+
 ---------- coverage: platform linux, python 3.12.8-final-0 -----------
 Name                                Stmts   Miss  Cover   Missing
 -----------------------------------------------------------------

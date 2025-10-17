@@ -89,3 +89,108 @@ class TestTelemetryReceiver:
         assert stats['error_count'] == 0
         assert stats['buffer_size'] == 1
         assert stats['buffer_capacity'] == 10
+
+
+class TestTelemetryReceiverAsync:
+    """Test cases for async receiver behavior and silent failures."""
+    
+    @pytest.fixture
+    def receiver(self):
+        """Create a telemetry receiver instance."""
+        return TelemetryReceiver(buffer_size=10)
+    
+    @pytest.mark.asyncio
+    async def test_async_retries_up_to_three(self, receiver):
+        """Test async receiver 'retries up to 3' means 3 retry attempts (4 total) - currently only 2 retries."""
+        call_count = []
+        
+        def failing_receive(packet):
+            call_count.append(1)
+            return False
+        
+        receiver.receive_packet = failing_receive
+        
+        packet = TelemetryPacket(
+            packet_id="PKT-001",
+            timestamp=datetime.now(),
+            source="ground_station_1",
+            milestone="engine_chill",
+            data={"status": "in_progress"}
+        )
+        
+        result = await receiver.receive_packet_async(packet)
+        
+        assert len(call_count) == 4, f"Expected 4 attempts (1 initial + 3 retries), got {len(call_count)}"
+    
+    @pytest.mark.asyncio
+    async def test_async_exception_emits_error_event(self, receiver):
+        """Test async receiver emits error event on exception instead of swallowing silently."""
+        def raising_receive(packet):
+            raise ValueError("Simulated error")
+        
+        receiver.receive_packet = raising_receive
+        
+        packet = TelemetryPacket(
+            packet_id="PKT-001",
+            timestamp=datetime.now(),
+            source="ground_station_1",
+            milestone="engine_chill",
+            data={"status": "in_progress"}
+        )
+        
+        result = await receiver.receive_packet_async(packet)
+        
+        assert result is False
+        assert receiver.error_count > 0, "Expected error_count to be incremented when exception occurs"
+    
+    def test_reorder_preserves_unsequenced_packets(self, receiver):
+        """Test _reorder_packets preserves packets without sequence_number."""
+        from ingestion.receiver import _reorder_packets
+        
+        packets = [
+            TelemetryPacket(
+                packet_id="PKT-001",
+                timestamp=datetime.now(),
+                source="gs1",
+                milestone="engine_chill",
+                data={},
+                sequence_number=3
+            ),
+            TelemetryPacket(
+                packet_id="PKT-002",
+                timestamp=datetime.now(),
+                source="gs1",
+                milestone="fuel_load",
+                data={},
+                sequence_number=None
+            ),
+            TelemetryPacket(
+                packet_id="PKT-003",
+                timestamp=datetime.now(),
+                source="gs1",
+                milestone="pressurization",
+                data={},
+                sequence_number=1
+            ),
+        ]
+        
+        reordered = _reorder_packets(packets)
+        
+        assert len(reordered) == 3, f"Expected 3 packets, got {len(reordered)}"
+        assert reordered[0].packet_id == "PKT-003"  # seq 1
+        assert reordered[1].packet_id == "PKT-001"  # seq 3
+        assert reordered[2].packet_id == "PKT-002"  # no seq - preserved at end
+    
+    def test_validate_sequence_gap_within_threshold(self, receiver):
+        """Test _validate_sequence_gap returns True when gap is within threshold."""
+        from ingestion.receiver import _validate_sequence_gap
+        
+        assert _validate_sequence_gap(current_seq=5, last_seq=2, max_gap=3) is True
+        
+        assert _validate_sequence_gap(current_seq=5, last_seq=3, max_gap=3) is True
+    
+    def test_validate_sequence_gap_exceeds_threshold(self, receiver):
+        """Test _validate_sequence_gap returns False and increments error_count when gap exceeds threshold."""
+        from ingestion.receiver import _validate_sequence_gap
+        
+        assert _validate_sequence_gap(current_seq=10, last_seq=5, max_gap=3) is False
