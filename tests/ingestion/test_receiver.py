@@ -165,3 +165,19 @@ class TestTelemetryReceiver:
         assert reordered[2].packet_id == "PKT-003"
         assert "UNSEQ" in reordered[3].packet_id
         assert "UNSEQ" in reordered[4].packet_id
+    
+    def test_receive_invalid_packet_increments_error_count(self, receiver):
+        """Test that invalid packets increment error count."""
+        packet = TelemetryPacket(
+            packet_id="",
+            timestamp=datetime.now(),
+            source="test",
+            milestone="engine_chill",
+            data={}
+        )
+        
+        initial_error_count = receiver.error_count
+        result = receiver.receive_packet(packet)
+        
+        assert result is False
+        assert receiver.error_count == initial_error_count + 1

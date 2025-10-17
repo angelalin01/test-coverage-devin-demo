@@ -39,3 +39,26 @@ class TestCreateApp:
         app = create_app()
         assert isinstance(app, FastAPI)
         assert app.title == "Telemetry Status Service"
+
+
+class TestAPIIntegration:
+    def test_submit_invalid_packet_raises_http_exception(self):
+        """Test that invalid packets trigger HTTPException."""
+        api = StatusAPI()
+        from api.server import PacketSubmission
+        
+        packet_data = PacketSubmission(
+            packet_id="",
+            timestamp=datetime.now(),
+            source="test",
+            milestone="engine_chill",
+            data={}
+        )
+        
+        from fastapi import HTTPException
+        try:
+            api.submit_packet(packet_data)
+            assert False, "Should have raised HTTPException"
+        except HTTPException as e:
+            assert e.status_code == 400
+            assert "Invalid packet data" in e.detail

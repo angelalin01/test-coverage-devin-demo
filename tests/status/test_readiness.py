@@ -37,3 +37,66 @@ class TestReadinessComputer:
         readiness = computer.compute_readiness()
         assert readiness.level == ReadinessLevel.READY
         assert readiness.overall_progress == 100.0
+    
+    def test_scrubbed_state_on_critical_failure(self, computer, processor):
+        """Test SCRUBBED state when critical milestone fails."""
+        packet = TelemetryPacket(
+            packet_id="PKT-FAIL",
+            timestamp=datetime.now(),
+            source="ground_station_1",
+            milestone="engine_chill",
+            data={"status": "failed", "error": "Engine temperature out of range"}
+        )
+        processor.process_packet(packet)
+        
+        readiness = computer.compute_readiness()
+        assert readiness.level == ReadinessLevel.SCRUBBED
+        assert "engine_chill" in readiness.failed_milestones
+        assert "scrubbed" in readiness.message.lower()
+    
+    def test_partial_state_when_critical_ready(self, computer, processor):
+        """Test PARTIAL state when critical milestones complete but others pending."""
+        critical_milestones = ["engine_chill", "fuel_load", "pressurization"]
+        
+        for milestone in critical_milestones:
+            packet = TelemetryPacket(
+                packet_id=f"PKT-{milestone}",
+                timestamp=datetime.now(),
+                source="ground_station_1",
+                milestone=milestone,
+                data={"status": "complete"}
+            )
+            processor.process_packet(packet)
+        
+        readiness = computer.compute_readiness()
+        assert readiness.level == ReadinessLevel.PARTIAL
+        assert len(readiness.pending_milestones) > 0
+    
+    def test_not_ready_when_critical_pending(self, computer, processor):
+        """Test NOT_READY state when critical milestones are pending."""
+        packet = TelemetryPacket(
+            packet_id="PKT-001",
+            timestamp=datetime.now(),
+            source="ground_station_1",
+            milestone="ignition",
+            data={"status": "complete"}
+        )
+        processor.process_packet(packet)
+        
+        readiness = computer.compute_readiness()
+        assert readiness.level == ReadinessLevel.NOT_READY
+    
+    def test_failed_milestones_categorized(self, computer, processor):
+        """Test that failed milestones are properly categorized."""
+        packet = TelemetryPacket(
+            packet_id="PKT-FAIL-NC",
+            timestamp=datetime.now(),
+            source="ground_station_1",
+            milestone="ignition",
+            data={"status": "failed", "error": "Ignition sequence error"}
+        )
+        processor.process_packet(packet)
+        
+        readiness = computer.compute_readiness()
+        assert "ignition" in readiness.failed_milestones
+        assert readiness.level != ReadinessLevel.SCRUBBED
