@@ -6,18 +6,21 @@ configfile: pyproject.toml
 testpaths: tests
 plugins: asyncio-0.21.2, cov-4.1.0, anyio-3.7.1
 asyncio: mode=Mode.AUTO
-collecting ... collected 11 items
+collecting ... collected 14 items
 
-tests/api/test_server.py::TestAPIEndpoints::test_submit_valid_packet PASSED [  9%]
-tests/api/test_server.py::TestAPIEndpoints::test_get_readiness PASSED    [ 18%]
-tests/ingestion/test_packet.py::TestTelemetryPacket::test_create_valid_packet PASSED [ 27%]
-tests/ingestion/test_receiver.py::TestTelemetryReceiver::test_receive_valid_packet PASSED [ 36%]
-tests/ingestion/test_receiver.py::TestTelemetryReceiver::test_receive_packet_async_success PASSED [ 45%]
-tests/ingestion/test_receiver.py::TestTelemetryReceiver::test_get_stats PASSED [ 54%]
-tests/processors/test_milestone_processor.py::TestMilestoneProcessor::test_process_packet_updates_state PASSED [ 63%]
-tests/processors/test_milestone_processor.py::TestMilestoneProcessor::test_process_complete_milestone PASSED [ 72%]
-tests/status/test_readiness.py::TestReadinessComputer::test_ready_state PASSED [ 81%]
-tests/status/test_readiness.py::TestReadinessComputer::test_partial_readiness_state PASSED [ 90%]
+tests/api/test_server.py::TestAPIEndpoints::test_submit_valid_packet PASSED [  7%]
+tests/api/test_server.py::TestAPIEndpoints::test_get_readiness PASSED    [ 14%]
+tests/ingestion/test_packet.py::TestTelemetryPacket::test_create_valid_packet PASSED [ 21%]
+tests/ingestion/test_receiver.py::TestTelemetryReceiver::test_receive_valid_packet PASSED [ 28%]
+tests/ingestion/test_receiver.py::TestTelemetryReceiver::test_receive_packet_async_success PASSED [ 35%]
+tests/ingestion/test_receiver.py::TestTelemetryReceiver::test_get_stats PASSED [ 42%]
+tests/ingestion/test_receiver.py::TestTelemetryReceiver::test_async_retry_attempts_three_times PASSED [ 50%]
+tests/ingestion/test_receiver.py::TestTelemetryReceiver::test_async_exception_increments_error_count PASSED [ 57%]
+tests/ingestion/test_receiver.py::TestTelemetryReceiver::test_reorder_packets_preserves_unsequenced PASSED [ 64%]
+tests/processors/test_milestone_processor.py::TestMilestoneProcessor::test_process_packet_updates_state PASSED [ 71%]
+tests/processors/test_milestone_processor.py::TestMilestoneProcessor::test_process_complete_milestone PASSED [ 78%]
+tests/status/test_readiness.py::TestReadinessComputer::test_ready_state PASSED [ 85%]
+tests/status/test_readiness.py::TestReadinessComputer::test_partial_readiness_state PASSED [ 92%]
 tests/status/test_readiness.py::TestReadinessComputer::test_not_ready_state PASSED [100%]
 
 =============================== warnings summary ===============================
@@ -33,12 +36,12 @@ Name                                Stmts   Miss  Cover   Missing
 -----------------------------------------------------------------
 api/server.py                          37      1    97%   40
 ingestion/packet.py                    19      1    95%   21
-ingestion/receiver.py                  42     15    64%   13-16, 26-27, 43-44, 47, 53, 68-70, 72-73
+ingestion/receiver.py                  44      6    86%   13-16, 46, 52
 main.py                                 2      2     0%   1-2
 processors/milestone_processor.py      42      7    83%   40, 52-54, 57-59
 status/readiness.py                    48      3    94%   47, 58-59
 -----------------------------------------------------------------
-TOTAL                                 190     29    85%
+TOTAL                                 192     20    90%
 Coverage HTML written to dir htmlcov
 
-======================== 11 passed, 2 warnings in 1.45s ========================
+======================== 14 passed, 2 warnings in 5.00s ========================
