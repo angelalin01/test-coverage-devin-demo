@@ -44,3 +44,13 @@ class TestMilestoneProcessor:
         status = processor.milestone_states["pressurization"]
         assert status.state == MilestoneState.COMPLETE
         assert status.progress_percent == 100.0
+    
+    def test_get_all_statuses(self, processor):
+        """Test get_all_statuses returns dict of all milestones."""
+        all_statuses = processor.get_all_statuses()
+        
+        assert isinstance(all_statuses, dict)
+        assert len(all_statuses) == 6
+        assert "engine_chill" in all_statuses
+        assert "fuel_load" in all_statuses
+        assert all_statuses["engine_chill"].state == MilestoneState.NOT_STARTED
